@@ -1,0 +1,9 @@
+{
+  "query": "SELECT \n    externalId,\n    title,\n    district,\n    CAST(price AS DECIMAL(15,2)) as price_num,\n    currency,\n    bedrooms,\n    CAST(area AS DECIMAL(10,2)) as area_num,\n    ownerWhatsapp,\n    sourceUrl\nFROM properties\nWHERE \n    district LIKE '%Surco%'\n    AND propertyType = 'departamento'\n    AND bedrooms BETWEEN 1 AND 4\n    AND CAST(area AS DECIMAL(10,2)) BETWEEN 50 AND 100\n    AND currency = 'USD'\n    AND CAST(price AS DECIMAL(15,2)) BETWEEN 80000 AND 120000\n    AND isActive = 1\nORDER BY createdAt DESC\nLIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user K9goRqR9XFFBUUz.root --database jb2T9ouKbrXX7FFnfGzs2v --execute SELECT \n    externalId,\n    title,\n    district,\n    CAST(price AS DECIMAL(15,2)) as price_num,\n    currency,\n    bedrooms,\n    CAST(area AS DECIMAL(10,2)) as area_num,\n    ownerWhatsapp,\n    sourceUrl\nFROM properties\nWHERE \n    district LIKE '%Surco%'\n    AND propertyType = 'departamento'\n    AND bedrooms BETWEEN 1 AND 4\n    AND CAST(area AS DECIMAL(10,2)) BETWEEN 50 AND 100\n    AND currency = 'USD'\n    AND CAST(price AS DECIMAL(15,2)) BETWEEN 80000 AND 120000\n    AND isActive = 1\nORDER BY createdAt DESC\nLIMIT 10;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 410
+}

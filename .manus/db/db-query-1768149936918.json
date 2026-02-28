@@ -1,0 +1,28 @@
+{
+  "query": "SELECT \n    id,\n    title,\n    propertyType,\n    district,\n    price,\n    currency,\n    bedrooms,\n    bathrooms,\n    area,\n    ownerPhone,\n    ownerWhatsapp,\n    ownerEmail,\n    ownerName,\n    sourceUrl,\n    portal,\n    address\nFROM properties\nWHERE \n    district LIKE '%Surco%'\n    AND bedrooms = 3\n    AND area > 200\n    AND price < 100000\nLIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user K9goRqR9XFFBUUz.root --database jb2T9ouKbrXX7FFnfGzs2v --execute SELECT \n    id,\n    title,\n    propertyType,\n    district,\n    price,\n    currency,\n    bedrooms,\n    bathrooms,\n    area,\n    ownerPhone,\n    ownerWhatsapp,\n    ownerEmail,\n    ownerName,\n    sourceUrl,\n    portal,\n    address\nFROM properties\nWHERE \n    district LIKE '%Surco%'\n    AND bedrooms = 3\n    AND area > 200\n    AND price < 100000\nLIMIT 5;",
+  "rows": [
+    {
+      "id": "420003",
+      "title": "Departamento en Surco - 3 dormitorios",
+      "propertyType": "Departamento",
+      "district": "Surco",
+      "price": "94757.00",
+      "currency": "USD",
+      "bedrooms": "3",
+      "bathrooms": "3",
+      "area": "222.00",
+      "ownerPhone": "NULL",
+      "ownerWhatsapp": "NULL",
+      "ownerEmail": "NULL",
+      "ownerName": "NULL",
+      "sourceUrl": "https://adondevivir.pe/propiedad/1768149596036-19",
+      "portal": "adondevivir",
+      "address": "Calle Ejemplo 431, Surco"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttitle\tpropertyType\tdistrict\tprice\tcurrency\tbedrooms\tbathrooms\tarea\townerPhone\townerWhatsapp\townerEmail\townerName\tsourceUrl\tportal\taddress\n420003\tDepartamento en Surco - 3 dormitorios\tDepartamento\tSurco\t94757.00\tUSD\t3\t3\t222.00\tNULL\tNULL\tNULL\tNULL\thttps://adondevivir.pe/propiedad/1768149596036-19\tadondevivir\tCalle Ejemplo 431, Surco\n",
+  "stderr": "",
+  "execution_time_ms": 429
+}

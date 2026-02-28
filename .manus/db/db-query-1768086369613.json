@@ -1,0 +1,18 @@
+{
+  "query": "SHOW COLUMNS FROM properties LIKE 'operationType';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user K9goRqR9XFFBUUz.root --database jb2T9ouKbrXX7FFnfGzs2v --execute SHOW COLUMNS FROM properties LIKE 'operationType';",
+  "rows": [
+    {
+      "Field": "operationType",
+      "Type": "enum('alquiler','venta')",
+      "Null": "NO",
+      "Key": "MUL",
+      "Default": "NULL",
+      "Extra": ""
+    }
+  ],
+  "messages": [],
+  "stdout": "Field\tType\tNull\tKey\tDefault\tExtra\noperationType\tenum('alquiler','venta')\tNO\tMUL\tNULL\t\n",
+  "stderr": "",
+  "execution_time_ms": 453
+}

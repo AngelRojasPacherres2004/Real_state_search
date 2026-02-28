@@ -1,0 +1,1 @@
+ALTER TABLE `savedSearches` ADD `publishedWithin` varchar(20);

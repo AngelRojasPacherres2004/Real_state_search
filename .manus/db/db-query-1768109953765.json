@@ -1,0 +1,70 @@
+{
+  "query": "SELECT portal, COUNT(*) as total\nFROM properties\nGROUP BY portal\nORDER BY total DESC;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user K9goRqR9XFFBUUz.root --database jb2T9ouKbrXX7FFnfGzs2v --execute SELECT portal, COUNT(*) as total\nFROM properties\nGROUP BY portal\nORDER BY total DESC;",
+  "rows": [
+    {
+      "portal": "babilonia",
+      "total": "49"
+    },
+    {
+      "portal": "urbania",
+      "total": "43"
+    },
+    {
+      "portal": "adondevivir",
+      "total": "33"
+    },
+    {
+      "portal": "ubicasa",
+      "total": "31"
+    },
+    {
+      "portal": "properati",
+      "total": "30"
+    },
+    {
+      "portal": "infocasas",
+      "total": "30"
+    },
+    {
+      "portal": "losportales",
+      "total": "27"
+    },
+    {
+      "portal": "fazwaz",
+      "total": "21"
+    },
+    {
+      "portal": "nexoinmobiliario",
+      "total": "16"
+    },
+    {
+      "portal": "tiktok",
+      "total": "5"
+    },
+    {
+      "portal": "mitula",
+      "total": "3"
+    },
+    {
+      "portal": "facebook",
+      "total": "2"
+    },
+    {
+      "portal": "mercadolibre",
+      "total": "2"
+    },
+    {
+      "portal": "laencontre",
+      "total": "1"
+    },
+    {
+      "portal": "test",
+      "total": "1"
+    }
+  ],
+  "messages": [],
+  "stdout": "portal\ttotal\nbabilonia\t49\nurbania\t43\nadondevivir\t33\nubicasa\t31\nproperati\t30\ninfocasas\t30\nlosportales\t27\nfazwaz\t21\nnexoinmobiliario\t16\ntiktok\t5\nmitula\t3\nfacebook\t2\nmercadolibre\t2\nlaencontre\t1\ntest\t1\n",
+  "stderr": "",
+  "execution_time_ms": 412
+}

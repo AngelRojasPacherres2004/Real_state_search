@@ -1,0 +1,69 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1767979628798,
+      "tag": "0000_silly_blue_shield",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1767979759623,
+      "tag": "0001_lying_vengeance",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1767981697302,
+      "tag": "0002_massive_warhawk",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1767988236876,
+      "tag": "0003_overrated_paladin",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1767992854636,
+      "tag": "0004_icy_rictor",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1767992919571,
+      "tag": "0005_cooing_night_nurse",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1767992950409,
+      "tag": "0006_cultured_risque",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1767998447494,
+      "tag": "0007_optimal_rawhide_kid",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1768077562748,
+      "tag": "0008_marvelous_white_tiger",
+      "breakpoints": true
+    }
+  ]
+}

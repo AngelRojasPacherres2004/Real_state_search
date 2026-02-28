@@ -1,0 +1,120 @@
+{
+  "query": "SELECT id, title, district, price, ownerPhone, ownerWhatsapp, ownerEmail, ownerName, sourceUrl FROM properties WHERE externalId LIKE 'bab-%' ORDER BY createdAt DESC LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user K9goRqR9XFFBUUz.root --database jb2T9ouKbrXX7FFnfGzs2v --execute SELECT id, title, district, price, ownerPhone, ownerWhatsapp, ownerEmail, ownerName, sourceUrl FROM properties WHERE externalId LIKE 'bab-%' ORDER BY createdAt DESC LIMIT 10;",
+  "rows": [
+    {
+      "id": "480005",
+      "title": "Lurin, Lima",
+      "district": "Lurin",
+      "price": "14500.00",
+      "ownerPhone": "988644768",
+      "ownerWhatsapp": "988644768",
+      "ownerEmail": "ventasgosg@gmail.com",
+      "ownerName": "NULL",
+      "sourceUrl": "https://babilonia.pe/inmueble/casa-en-alquiler-en-lurin-de-5-dormitorios-5-banios-398m2-area-14500-usd-de-Giovanna-Oviedo-131685"
+    },
+    {
+      "id": "480004",
+      "title": "Jiron Aldebarán 320, Santiago De Surco, Lima",
+      "district": "Santiago De Surco",
+      "price": "941.00",
+      "ownerPhone": "988644768",
+      "ownerWhatsapp": "988644768",
+      "ownerEmail": "rponte0903@gmail.com",
+      "ownerName": "NULL",
+      "sourceUrl": "https://babilonia.pe/inmueble/departamento-en-alquiler-en-santiago-de-surco-de-3-dormitorios-2-banios-100m2-area-941-usd-de-gladsa-inmobiliaria-136424"
+    },
+    {
+      "id": "480003",
+      "title": "La Encantada De Villa, Chorrillos, Lima",
+      "district": "Chorrillos",
+      "price": "887000.00",
+      "ownerPhone": "988644768",
+      "ownerWhatsapp": "988644768",
+      "ownerEmail": "estelaromeroalbarran@gmail.com",
+      "ownerName": "NULL",
+      "sourceUrl": "https://babilonia.pe/inmueble/casa-en-venta-en-chorrillos-de-4-dormitorios-5-banios-1121m2-area-887000-usd-de-Estela-Romero-131555"
+    },
+    {
+      "id": "480002",
+      "title": "Santiago De Surco, Lima",
+      "district": "Santiago De Surco",
+      "price": "159000.00",
+      "ownerPhone": "988644768",
+      "ownerWhatsapp": "988644768",
+      "ownerEmail": "marthayrivarren74@gmail.com",
+      "ownerName": "NULL",
+      "sourceUrl": "https://babilonia.pe/inmueble/departamento-en-venta-en-santiago-de-surco-de-3-dormitorios-2-banios-96m2-area-159000-usd-de-titi-yrivarren-agente-128499"
+    },
+    {
+      "id": "300018",
+      "title": "De La Marina 412, Miraflores, Lima",
+      "district": "Miraflores",
+      "price": "2599.00",
+      "ownerPhone": "NULL",
+      "ownerWhatsapp": "NULL",
+      "ownerEmail": "NULL",
+      "ownerName": "NULL",
+      "sourceUrl": "https://babilonia.pe/inmueble/departamento-en-alquiler-en-miraflores-de-3-dormitorios-3-banios-161m2-area-2599-usd-de-peru-luxury-properties-136355"
+    },
+    {
+      "id": "300017",
+      "title": "Calle El Boulevard 148, Santiago De Surco, Lima",
+      "district": "Santiago De Surco",
+      "price": "950.00",
+      "ownerPhone": "NULL",
+      "ownerWhatsapp": "NULL",
+      "ownerEmail": "NULL",
+      "ownerName": "NULL",
+      "sourceUrl": "https://babilonia.pe/inmueble/departamento-en-alquiler-en-santiago-de-surco-de-3-dormitorios-2-banios-110m2-area-950-usd-de-elvi-morales-agente-inmobiliario-136368"
+    },
+    {
+      "id": "300014",
+      "title": "De La Reserva 900, Miraflores, Lima",
+      "district": "Miraflores",
+      "price": "4999.00",
+      "ownerPhone": "NULL",
+      "ownerWhatsapp": "NULL",
+      "ownerEmail": "NULL",
+      "ownerName": "NULL",
+      "sourceUrl": "https://babilonia.pe/inmueble/departamento-en-alquiler-en-miraflores-de-3-dormitorios-3-banios-200m2-area-4999-usd-de-peru-luxury-properties-136366"
+    },
+    {
+      "id": "300016",
+      "title": "Chongoyape 215, San Miguel, Lima",
+      "district": "San Miguel",
+      "price": "520.00",
+      "ownerPhone": "NULL",
+      "ownerWhatsapp": "NULL",
+      "ownerEmail": "NULL",
+      "ownerName": "NULL",
+      "sourceUrl": "https://babilonia.pe/inmueble/departamento-en-alquiler-en-san-miguel-de-1-dormitorios-1-banios-60m2-area-520-usd-de-elvi-morales-agente-inmobiliario-136370"
+    },
+    {
+      "id": "300015",
+      "title": "Jr. Monte Real 385, Santiago De Surco, Lima",
+      "district": "Santiago De Surco",
+      "price": "1500.00",
+      "ownerPhone": "NULL",
+      "ownerWhatsapp": "NULL",
+      "ownerEmail": "NULL",
+      "ownerName": "NULL",
+      "sourceUrl": "https://babilonia.pe/inmueble/departamento-en-alquiler-en-santiago-de-surco-de-3-dormitorios-3-banios-188m2-area-1500-usd-de-elvi-morales-agente-inmobiliario-136373"
+    },
+    {
+      "id": "300013",
+      "title": "Av. Petit Thouars 3940, San Isidro, Lima",
+      "district": "San Isidro",
+      "price": "310000.00",
+      "ownerPhone": "NULL",
+      "ownerWhatsapp": "NULL",
+      "ownerEmail": "NULL",
+      "ownerName": "NULL",
+      "sourceUrl": "https://babilonia.pe/inmueble/casa-en-venta-en-san-isidro-de-3-dormitorios-1-banios-200m2-area-310000-usd-de-teresa-garcia-naranjo-agente-inmobiliario-124143"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttitle\tdistrict\tprice\townerPhone\townerWhatsapp\townerEmail\townerName\tsourceUrl\n480005\tLurin, Lima\tLurin\t14500.00\t988644768\t988644768\tventasgosg@gmail.com\tNULL\thttps://babilonia.pe/inmueble/casa-en-alquiler-en-lurin-de-5-dormitorios-5-banios-398m2-area-14500-usd-de-Giovanna-Oviedo-131685\n480004\tJiron Aldebarán 320, Santiago De Surco, Lima\tSantiago De Surco\t941.00\t988644768\t988644768\trponte0903@gmail.com\tNULL\thttps://babilonia.pe/inmueble/departamento-en-alquiler-en-santiago-de-surco-de-3-dormitorios-2-banios-100m2-area-941-usd-de-gladsa-inmobiliaria-136424\n480003\tLa Encantada De Villa, Chorrillos, Lima\tChorrillos\t887000.00\t988644768\t988644768\testelaromeroalbarran@gmail.com\tNULL\thttps://babilonia.pe/inmueble/casa-en-venta-en-chorrillos-de-4-dormitorios-5-banios-1121m2-area-887000-usd-de-Estela-Romero-131555\n480002\tSantiago De Surco, Lima\tSantiago De Surco\t159000.00\t988644768\t988644768\tmarthayrivarren74@gmail.com\tNULL\thttps://babilonia.pe/inmueble/departamento-en-venta-en-santiago-de-surco-de-3-dormitorios-2-banios-96m2-area-159000-usd-de-titi-yrivarren-agente-128499\n300018\tDe La Marina 412, Miraflores, Lima\tMiraflores\t2599.00\tNULL\tNULL\tNULL\tNULL\thttps://babilonia.pe/inmueble/departamento-en-alquiler-en-miraflores-de-3-dormitorios-3-banios-161m2-area-2599-usd-de-peru-luxury-properties-136355\n300017\tCalle El Boulevard 148, Santiago De Surco, Lima\tSantiago De Surco\t950.00\tNULL\tNULL\tNULL\tNULL\thttps://babilonia.pe/inmueble/departamento-en-alquiler-en-santiago-de-surco-de-3-dormitorios-2-banios-110m2-area-950-usd-de-elvi-morales-agente-inmobiliario-136368\n300014\tDe La Reserva 900, Miraflores, Lima\tMiraflores\t4999.00\tNULL\tNULL\tNULL\tNULL\thttps://babilonia.pe/inmueble/departamento-en-alquiler-en-miraflores-de-3-dormitorios-3-banios-200m2-area-4999-usd-de-peru-luxury-properties-136366\n300016\tChongoyape 215, San Miguel, Lima\tSan Miguel\t520.00\tNULL\tNULL\tNULL\tNULL\thttps://babilonia.pe/inmueble/departamento-en-alquiler-en-san-miguel-de-1-dormitorios-1-banios-60m2-area-520-usd-de-elvi-morales-agente-inmobiliario-136370\n300015\tJr. Monte Real 385, Santiago De Surco, Lima\tSantiago De Surco\t1500.00\tNULL\tNULL\tNULL\tNULL\thttps://babilonia.pe/inmueble/departamento-en-alquiler-en-santiago-de-surco-de-3-dormitorios-3-banios-188m2-area-1500-usd-de-elvi-morales-agente-inmobiliario-136373\n300013\tAv. Petit Thouars 3940, San Isidro, Lima\tSan Isidro\t310000.00\tNULL\tNULL\tNULL\tNULL\thttps://babilonia.pe/inmueble/casa-en-venta-en-san-isidro-de-3-dormitorios-1-banios-200m2-area-310000-usd-de-teresa-garcia-naranjo-agente-inmobiliario-124143\n",
+  "stderr": "",
+  "execution_time_ms": 404
+}

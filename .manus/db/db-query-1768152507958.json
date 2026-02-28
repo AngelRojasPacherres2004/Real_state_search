@@ -1,0 +1,55 @@
+{
+  "query": "SELECT \n    id,\n    externalId,\n    title,\n    address,\n    district,\n    sourceUrl,\n    portal\nFROM properties\nWHERE \n    address LIKE '%Ejemplo%'\nLIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user K9goRqR9XFFBUUz.root --database jb2T9ouKbrXX7FFnfGzs2v --execute SELECT \n    id,\n    externalId,\n    title,\n    address,\n    district,\n    sourceUrl,\n    portal\nFROM properties\nWHERE \n    address LIKE '%Ejemplo%'\nLIMIT 5;",
+  "rows": [
+    {
+      "id": "1",
+      "externalId": "infocasas-1767979982590-0",
+      "title": "Departamento en Jesús María - 4 dormitorios",
+      "address": "Calle Ejemplo 475, Jesús María",
+      "district": "Jesús María",
+      "sourceUrl": "https://infocasas.pe/propiedad/1767979982590-0",
+      "portal": "infocasas"
+    },
+    {
+      "id": "2",
+      "externalId": "babilonia-1767979982590-2",
+      "title": "Departamento en San Isidro - 3 dormitorios",
+      "address": "Calle Ejemplo 16, San Isidro",
+      "district": "San Isidro",
+      "sourceUrl": "https://babilonia.pe/propiedad/1767979982590-2",
+      "portal": "babilonia"
+    },
+    {
+      "id": "3",
+      "externalId": "losportales-1767979982590-3",
+      "title": "Departamento en San Isidro - 3 dormitorios",
+      "address": "Calle Ejemplo 405, San Isidro",
+      "district": "San Isidro",
+      "sourceUrl": "https://losportales.pe/propiedad/1767979982590-3",
+      "portal": "losportales"
+    },
+    {
+      "id": "4",
+      "externalId": "ubicasa-1767979982590-4",
+      "title": "Departamento en Lince - 2 dormitorios",
+      "address": "Calle Ejemplo 334, Lince",
+      "district": "Lince",
+      "sourceUrl": "https://ubicasa.pe/propiedad/1767979982590-4",
+      "portal": "ubicasa"
+    },
+    {
+      "id": "5",
+      "externalId": "properati-1767979982590-5",
+      "title": "Oficina en Magdalena - 2 dormitorios",
+      "address": "Calle Ejemplo 487, Magdalena",
+      "district": "Magdalena",
+      "sourceUrl": "https://properati.pe/propiedad/1767979982590-5",
+      "portal": "properati"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\texternalId\ttitle\taddress\tdistrict\tsourceUrl\tportal\n1\tinfocasas-1767979982590-0\tDepartamento en Jesús María - 4 dormitorios\tCalle Ejemplo 475, Jesús María\tJesús María\thttps://infocasas.pe/propiedad/1767979982590-0\tinfocasas\n2\tbabilonia-1767979982590-2\tDepartamento en San Isidro - 3 dormitorios\tCalle Ejemplo 16, San Isidro\tSan Isidro\thttps://babilonia.pe/propiedad/1767979982590-2\tbabilonia\n3\tlosportales-1767979982590-3\tDepartamento en San Isidro - 3 dormitorios\tCalle Ejemplo 405, San Isidro\tSan Isidro\thttps://losportales.pe/propiedad/1767979982590-3\tlosportales\n4\tubicasa-1767979982590-4\tDepartamento en Lince - 2 dormitorios\tCalle Ejemplo 334, Lince\tLince\thttps://ubicasa.pe/propiedad/1767979982590-4\tubicasa\n5\tproperati-1767979982590-5\tOficina en Magdalena - 2 dormitorios\tCalle Ejemplo 487, Magdalena\tMagdalena\thttps://properati.pe/propiedad/1767979982590-5\tproperati\n",
+  "stderr": "",
+  "execution_time_ms": 432
+}
