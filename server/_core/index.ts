@@ -34,10 +34,12 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 async function startServer() {
   const app = express();
   const server = createServer(app);
+
+  // common middleware
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
-  // ✅ RUTA DE LOGIN LOCAL PARA DESARROLLO
+  // ✅ local development login helper
   if (process.env.NODE_ENV === "development") {
     app.get("/api/dev-login", async (req, res) => {
       try {
@@ -73,6 +75,7 @@ async function startServer() {
     console.log("👤 Login local disponible en: http://localhost:3000/api/dev-login");
   }
 
+  // OAuth and tRPC routes
   registerOAuthRoutes(app);
   app.use(
     "/api/trpc",
@@ -82,6 +85,7 @@ async function startServer() {
     })
   );
 
+  // static or vite depending on env
   if (process.env.NODE_ENV === "development") {
     await setupVite(app, server);
   } else {
