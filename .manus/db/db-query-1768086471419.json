@@ -1,0 +1,62 @@
+{
+  "query": "SELECT portal, COUNT(*) as count FROM properties GROUP BY portal ORDER BY count DESC;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user K9goRqR9XFFBUUz.root --database jb2T9ouKbrXX7FFnfGzs2v --execute SELECT portal, COUNT(*) as count FROM properties GROUP BY portal ORDER BY count DESC;",
+  "rows": [
+    {
+      "portal": "urbania",
+      "count": "40"
+    },
+    {
+      "portal": "babilonia",
+      "count": "34"
+    },
+    {
+      "portal": "ubicasa",
+      "count": "30"
+    },
+    {
+      "portal": "adondevivir",
+      "count": "30"
+    },
+    {
+      "portal": "properati",
+      "count": "28"
+    },
+    {
+      "portal": "infocasas",
+      "count": "27"
+    },
+    {
+      "portal": "losportales",
+      "count": "24"
+    },
+    {
+      "portal": "fazwaz",
+      "count": "20"
+    },
+    {
+      "portal": "nexoinmobiliario",
+      "count": "3"
+    },
+    {
+      "portal": "tiktok",
+      "count": "2"
+    },
+    {
+      "portal": "mitula",
+      "count": "1"
+    },
+    {
+      "portal": "test",
+      "count": "1"
+    },
+    {
+      "portal": "laencontre",
+      "count": "1"
+    }
+  ],
+  "messages": [],
+  "stdout": "portal\tcount\nurbania\t40\nbabilonia\t34\nubicasa\t30\nadondevivir\t30\nproperati\t28\ninfocasas\t27\nlosportales\t24\nfazwaz\t20\nnexoinmobiliario\t3\ntiktok\t2\nmitula\t1\ntest\t1\nlaencontre\t1\n",
+  "stderr": "",
+  "execution_time_ms": 385
+}

@@ -1,0 +1,1 @@
+ALTER TABLE `searchHistory` ADD `publishedWithin` varchar(20);

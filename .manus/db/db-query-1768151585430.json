@@ -1,0 +1,100 @@
+{
+  "query": "SELECT \n    externalId,\n    title,\n    district,\n    CAST(price AS DECIMAL(15,2)) as price_num,\n    currency,\n    bedrooms,\n    CAST(area AS DECIMAL(10,2)) as area_num,\n    propertyType\nFROM properties\nWHERE \n    district LIKE '%Surco%'\n    AND isActive = 1\nORDER BY CAST(price AS DECIMAL(15,2)) ASC\nLIMIT 20;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user K9goRqR9XFFBUUz.root --database jb2T9ouKbrXX7FFnfGzs2v --execute SELECT \n    externalId,\n    title,\n    district,\n    CAST(price AS DECIMAL(15,2)) as price_num,\n    currency,\n    bedrooms,\n    CAST(area AS DECIMAL(10,2)) as area_num,\n    propertyType\nFROM properties\nWHERE \n    district LIKE '%Surco%'\n    AND isActive = 1\nORDER BY CAST(price AS DECIMAL(15,2)) ASC\nLIMIT 20;",
+  "rows": [
+    {
+      "externalId": "bab-4013501",
+      "title": "Calle El Boulevard 148, Santiago De Surco, Lima",
+      "district": "Santiago De Surco",
+      "price_num": "950.00",
+      "currency": "USD",
+      "bedrooms": "3",
+      "area_num": "110.00",
+      "propertyType": "apartment"
+    },
+    {
+      "externalId": "losportales-1768106556221-2",
+      "title": "Departamento en Surco - 2 dormitorios",
+      "district": "Surco",
+      "price_num": "1129.00",
+      "currency": "USD",
+      "bedrooms": "2",
+      "area_num": "188.00",
+      "propertyType": "Departamento"
+    },
+    {
+      "externalId": "bab-2021553",
+      "title": "Jr. Monte Real 385, Santiago De Surco, Lima",
+      "district": "Santiago De Surco",
+      "price_num": "1500.00",
+      "currency": "USD",
+      "bedrooms": "3",
+      "area_num": "188.00",
+      "propertyType": "apartment"
+    },
+    {
+      "externalId": "facebook-1768106567568-14",
+      "title": "Departamento en Surco - 4 dormitorios",
+      "district": "Surco",
+      "price_num": "2525.00",
+      "currency": "USD",
+      "bedrooms": "4",
+      "area_num": "65.00",
+      "propertyType": "Departamento"
+    },
+    {
+      "externalId": "adondevivir-1768149596036-19",
+      "title": "Departamento en Surco - 3 dormitorios",
+      "district": "Surco",
+      "price_num": "94757.00",
+      "currency": "USD",
+      "bedrooms": "3",
+      "area_num": "222.00",
+      "propertyType": "Departamento"
+    },
+    {
+      "externalId": "bab-1491231",
+      "title": "Av. Las Casuarinas 460, Santiago De Surco, Lima",
+      "district": "Santiago De Surco",
+      "price_num": "590000.00",
+      "currency": "USD",
+      "bedrooms": "4",
+      "area_num": "314.00",
+      "propertyType": "house"
+    },
+    {
+      "externalId": "mitula-1768149567635-5",
+      "title": "Casa en Surco - 1 dormitorios",
+      "district": "Surco",
+      "price_num": "1325310.00",
+      "currency": "USD",
+      "bedrooms": "1",
+      "area_num": "888.00",
+      "propertyType": "Casa"
+    },
+    {
+      "externalId": "adondevivir-1768149567635-4",
+      "title": "Casa en Surco - 2 dormitorios",
+      "district": "Surco",
+      "price_num": "2635486.00",
+      "currency": "USD",
+      "bedrooms": "2",
+      "area_num": "408.00",
+      "propertyType": "Casa"
+    },
+    {
+      "externalId": "bab-9484361",
+      "title": "Jr. Cerro San Francisco 133, Santiago De Surco, Lima",
+      "district": "Santiago De Surco",
+      "price_num": "3800000.00",
+      "currency": "USD",
+      "bedrooms": "4",
+      "area_num": "750.00",
+      "propertyType": "house"
+    }
+  ],
+  "messages": [],
+  "stdout": "externalId\ttitle\tdistrict\tprice_num\tcurrency\tbedrooms\tarea_num\tpropertyType\nbab-4013501\tCalle El Boulevard 148, Santiago De Surco, Lima\tSantiago De Surco\t950.00\tUSD\t3\t110.00\tapartment\nlosportales-1768106556221-2\tDepartamento en Surco - 2 dormitorios\tSurco\t1129.00\tUSD\t2\t188.00\tDepartamento\nbab-2021553\tJr. Monte Real 385, Santiago De Surco, Lima\tSantiago De Surco\t1500.00\tUSD\t3\t188.00\tapartment\nfacebook-1768106567568-14\tDepartamento en Surco - 4 dormitorios\tSurco\t2525.00\tUSD\t4\t65.00\tDepartamento\nadondevivir-1768149596036-19\tDepartamento en Surco - 3 dormitorios\tSurco\t94757.00\tUSD\t3\t222.00\tDepartamento\nbab-1491231\tAv. Las Casuarinas 460, Santiago De Surco, Lima\tSantiago De Surco\t590000.00\tUSD\t4\t314.00\thouse\nmitula-1768149567635-5\tCasa en Surco - 1 dormitorios\tSurco\t1325310.00\tUSD\t1\t888.00\tCasa\nadondevivir-1768149567635-4\tCasa en Surco - 2 dormitorios\tSurco\t2635486.00\tUSD\t2\t408.00\tCasa\nbab-9484361\tJr. Cerro San Francisco 133, Santiago De Surco, Lima\tSantiago De Surco\t3800000.00\tUSD\t4\t750.00\thouse\n",
+  "stderr": "",
+  "execution_time_ms": 387
+}

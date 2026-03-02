@@ -1,0 +1,15 @@
+{
+  "query": "SELECT COUNT(*) as total, \n       SUM(CASE WHEN ownerWhatsapp IS NOT NULL AND ownerWhatsapp != '' THEN 1 ELSE 0 END) as con_whatsapp,\n       SUM(CASE WHEN sourceUrl IS NOT NULL AND sourceUrl != '' THEN 1 ELSE 0 END) as con_url\nFROM properties;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user K9goRqR9XFFBUUz.root --database jb2T9ouKbrXX7FFnfGzs2v --execute SELECT COUNT(*) as total, \n       SUM(CASE WHEN ownerWhatsapp IS NOT NULL AND ownerWhatsapp != '' THEN 1 ELSE 0 END) as con_whatsapp,\n       SUM(CASE WHEN sourceUrl IS NOT NULL AND sourceUrl != '' THEN 1 ELSE 0 END) as con_url\nFROM properties;",
+  "rows": [
+    {
+      "total": "47",
+      "con_whatsapp": "0",
+      "con_url": "47"
+    }
+  ],
+  "messages": [],
+  "stdout": "total\tcon_whatsapp\tcon_url\n47\t0\t47\n",
+  "stderr": "",
+  "execution_time_ms": 389
+}

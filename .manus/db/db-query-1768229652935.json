@@ -1,0 +1,9 @@
+{
+  "query": "SELECT id, title, address, portal FROM properties WHERE title LIKE '%Calle Ejemplo%' OR address LIKE '%Calle Ejemplo%' OR title LIKE '%Departamento en%dormitorios%' LIMIT 30;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user K9goRqR9XFFBUUz.root --database jb2T9ouKbrXX7FFnfGzs2v --execute SELECT id, title, address, portal FROM properties WHERE title LIKE '%Calle Ejemplo%' OR address LIKE '%Calle Ejemplo%' OR title LIKE '%Departamento en%dormitorios%' LIMIT 30;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 393
+}

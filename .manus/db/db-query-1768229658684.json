@@ -1,0 +1,26 @@
+{
+  "query": "SELECT portal, COUNT(*) as cantidad FROM properties GROUP BY portal ORDER BY cantidad DESC;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user K9goRqR9XFFBUUz.root --database jb2T9ouKbrXX7FFnfGzs2v --execute SELECT portal, COUNT(*) as cantidad FROM properties GROUP BY portal ORDER BY cantidad DESC;",
+  "rows": [
+    {
+      "portal": "urbania",
+      "cantidad": "21"
+    },
+    {
+      "portal": "babilonia",
+      "cantidad": "13"
+    },
+    {
+      "portal": "nexoinmobiliario",
+      "cantidad": "12"
+    },
+    {
+      "portal": "test",
+      "cantidad": "1"
+    }
+  ],
+  "messages": [],
+  "stdout": "portal\tcantidad\nurbania\t21\nbabilonia\t13\nnexoinmobiliario\t12\ntest\t1\n",
+  "stderr": "",
+  "execution_time_ms": 403
+}

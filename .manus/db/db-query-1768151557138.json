@@ -1,0 +1,22 @@
+{
+  "query": "SELECT \n    externalId,\n    title,\n    district,\n    price,\n    ownerPhone,\n    ownerWhatsapp,\n    ownerEmail,\n    ownerName,\n    sourceUrl,\n    address\nFROM properties\nWHERE externalId = 'urb-9959534'\nLIMIT 1;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user K9goRqR9XFFBUUz.root --database jb2T9ouKbrXX7FFnfGzs2v --execute SELECT \n    externalId,\n    title,\n    district,\n    price,\n    ownerPhone,\n    ownerWhatsapp,\n    ownerEmail,\n    ownerName,\n    sourceUrl,\n    address\nFROM properties\nWHERE externalId = 'urb-9959534'\nLIMIT 1;",
+  "rows": [
+    {
+      "externalId": "urb-9959534",
+      "title": "departamento en Av. Augusto Pérez Araníbar 1925",
+      "district": "Av. Augusto Pérez Araníbar 1925",
+      "price": "101498.93",
+      "ownerPhone": "NULL",
+      "ownerWhatsapp": "NULL",
+      "ownerEmail": "NULL",
+      "ownerName": "NULL",
+      "sourceUrl": "https://urbania.pe/",
+      "address": "Av. Augusto Pérez Araníbar 1925, San Isidro"
+    }
+  ],
+  "messages": [],
+  "stdout": "externalId\ttitle\tdistrict\tprice\townerPhone\townerWhatsapp\townerEmail\townerName\tsourceUrl\taddress\nurb-9959534\tdepartamento en Av. Augusto Pérez Araníbar 1925\tAv. Augusto Pérez Araníbar 1925\t101498.93\tNULL\tNULL\tNULL\tNULL\thttps://urbania.pe/\tAv. Augusto Pérez Araníbar 1925, San Isidro\n",
+  "stderr": "",
+  "execution_time_ms": 458
+}

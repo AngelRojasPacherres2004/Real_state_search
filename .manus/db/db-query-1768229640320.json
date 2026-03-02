@@ -1,0 +1,190 @@
+{
+  "query": "SELECT id, title, address, district, sourceUrl, ownerWhatsapp, portal FROM properties LIMIT 20;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user K9goRqR9XFFBUUz.root --database jb2T9ouKbrXX7FFnfGzs2v --execute SELECT id, title, address, district, sourceUrl, ownerWhatsapp, portal FROM properties LIMIT 20;",
+  "rows": [
+    {
+      "id": "210001",
+      "title": "Departamento de Prueba en Miraflores",
+      "address": "Av. Test 123",
+      "district": "Miraflores",
+      "sourceUrl": "https://test.com/property/001",
+      "ownerWhatsapp": "NULL",
+      "portal": "test"
+    },
+    {
+      "id": "240002",
+      "title": "departamento en Av. Augusto Pérez Araníbar 1925",
+      "address": "Av. Augusto Pérez Araníbar 1925, San Isidro",
+      "district": "Av. Augusto Pérez Araníbar 1925",
+      "sourceUrl": "https://urbania.pe/",
+      "ownerWhatsapp": "NULL",
+      "portal": "urbania"
+    },
+    {
+      "id": "240003",
+      "title": "departamento en Av. Augusto Pérez Araníbar 1925 - 2 dormitorios",
+      "address": "Av. Augusto Pérez Araníbar 1925, San Isidro",
+      "district": "Av. Augusto Pérez Araníbar 1925",
+      "sourceUrl": "https://urbania.pe/inmueble/proyecto/ememefin-proyecto-the-summit-lima-san-isidro-grupo-tyc-148079408?n_src=Listado&n_pg=1&n_pos=1",
+      "ownerWhatsapp": "NULL",
+      "portal": "urbania"
+    },
+    {
+      "id": "240004",
+      "title": "departamento en Av. Cesar Vallejo 1445 - 2 dormitorios",
+      "address": "Av. Cesar Vallejo 1445, Lince, Lima",
+      "district": "Av. Cesar Vallejo 1445",
+      "sourceUrl": "https://urbania.pe/inmueble/proyecto/ememefin-proyecto-esencial-lince-risso-alerces-inmobiliaria-58805956?n_src=Listado&n_pg=1&n_pos=3",
+      "ownerWhatsapp": "NULL",
+      "portal": "urbania"
+    },
+    {
+      "id": "270001",
+      "title": "departamento en San Isidro",
+      "address": "Costa Living es un moderno proyecto inmobiliario, en conjunto con VyV Bravo, ubicado en Av. La Paz 2607, San Miguel, diseñado para quienes buscan comodidad, conectividad y una excelente oportunidad de inversión. Cuenta con departamentos de 2 y 3 ambientes, con áreas que van desde 40 m² hasta 76 m², ideales para vivir o invertir. El proyecto se desarrollará en dos etapas. En su primera etapa, Costa Living tendrá 296 departamentos, distribuidos en 13 pisos, ofreciendo espacios bien distribuidos y funcionales para un estilo de vida moderno.",
+      "district": "San Isidro",
+      "sourceUrl": "https://urbania.pe/",
+      "ownerWhatsapp": "NULL",
+      "portal": "urbania"
+    },
+    {
+      "id": "270002",
+      "title": "departamento en Lima",
+      "address": "Costa Living es un moderno proyecto inmobiliario, en conjunto con VyV Bravo, ubicado en Av. La Paz 2607, San Miguel, diseñado para quienes buscan comodidad, conectividad y una excelente oportunidad de inversión. Cuenta con departamentos de 2 y 3 ambientes, con áreas que van desde 40 m² hasta 76 m², ideales para vivir o invertir. El proyecto se desarrollará en dos etapas. En su primera etapa, Costa Living tendrá 296 departamentos, distribuidos en 13 pisos, ofreciendo espacios bien distribuidos y funcionales para un estilo de vida moderno.",
+      "district": "NULL",
+      "sourceUrl": "https://urbania.pe/inmueble/proyecto/ememefin-proyecto-costa-living-san-miguel-san-miguel-colindante-inmobiliaria-148483180?n_src=Listado&n_pg=1&n_pos=1",
+      "ownerWhatsapp": "NULL",
+      "portal": "urbania"
+    },
+    {
+      "id": "270003",
+      "title": "departamento en San Isidro - 1 dormitorios",
+      "address": "Av. Javier Prado Oeste 769",
+      "district": "San Isidro",
+      "sourceUrl": "https://urbania.pe/inmueble/proyecto/ememvein-proyecto-prado-harmony-en-lanzamiento-lima-san-isidro-grupo-tyc-148286259?n_src=Listado&n_pg=1&n_pos=2",
+      "ownerWhatsapp": "NULL",
+      "portal": "urbania"
+    },
+    {
+      "id": "270004",
+      "title": "departamento en Lima",
+      "address": "Av. Nicolás Arriola 131, Santa Catalina",
+      "district": "NULL",
+      "sourceUrl": "https://urbania.pe/inmueble/proyecto/ememvein-proyecto-catalina-sky-la-victoria-santa-catalina-grupo-tyc-144542832?n_src=Listado&n_pg=1&n_pos=3",
+      "ownerWhatsapp": "NULL",
+      "portal": "urbania"
+    },
+    {
+      "id": "270005",
+      "title": "departamento en Av. Augusto Pérez Araníbar 1925 - 2 dormitorios",
+      "address": "Av. Augusto Pérez Araníbar 1925, San Isidro",
+      "district": "Av. Augusto Pérez Araníbar 1925",
+      "sourceUrl": "https://urbania.pe/inmueble/proyecto/ememefin-proyecto-the-summit-lima-san-isidro-grupo-tyc-148079408?n_src=Listado&n_pg=1&n_pos=4",
+      "ownerWhatsapp": "NULL",
+      "portal": "urbania"
+    },
+    {
+      "id": "270006",
+      "title": "departamento en San Isidro",
+      "address": "Av. Nicolás Arriola 131, Santa Catalina",
+      "district": "San Isidro",
+      "sourceUrl": "https://urbania.pe/",
+      "ownerWhatsapp": "NULL",
+      "portal": "urbania"
+    },
+    {
+      "id": "270007",
+      "title": "departamento en Lima",
+      "address": "Av. Nicolás Arriola 131, Santa Catalina",
+      "district": "NULL",
+      "sourceUrl": "https://urbania.pe/inmueble/proyecto/ememvein-proyecto-catalina-sky-la-victoria-santa-catalina-grupo-tyc-144542832?n_src=Listado&n_pg=1&n_pos=1",
+      "ownerWhatsapp": "NULL",
+      "portal": "urbania"
+    },
+    {
+      "id": "270008",
+      "title": "departamento en San Isidro - 1 dormitorios",
+      "address": "Av. Javier Prado Oeste 769",
+      "district": "San Isidro",
+      "sourceUrl": "https://urbania.pe/inmueble/proyecto/ememvein-proyecto-prado-harmony-en-lanzamiento-lima-san-isidro-grupo-tyc-148286259?n_src=Listado&n_pg=1&n_pos=2",
+      "ownerWhatsapp": "NULL",
+      "portal": "urbania"
+    },
+    {
+      "id": "270009",
+      "title": "departamento en Lima",
+      "address": "Costa Living es un moderno proyecto inmobiliario, en conjunto con VyV Bravo, ubicado en Av. La Paz 2607, San Miguel, diseñado para quienes buscan comodidad, conectividad y una excelente oportunidad de inversión. Cuenta con departamentos de 2 y 3 ambientes, con áreas que van desde 40 m² hasta 76 m², ideales para vivir o invertir. El proyecto se desarrollará en dos etapas. En su primera etapa, Costa Living tendrá 296 departamentos, distribuidos en 13 pisos, ofreciendo espacios bien distribuidos y funcionales para un estilo de vida moderno.",
+      "district": "NULL",
+      "sourceUrl": "https://urbania.pe/inmueble/proyecto/ememefin-proyecto-costa-living-san-miguel-san-miguel-colindante-inmobiliaria-148483180?n_src=Listado&n_pg=1&n_pos=3",
+      "ownerWhatsapp": "NULL",
+      "portal": "urbania"
+    },
+    {
+      "id": "270010",
+      "title": "departamento en Av. Augusto Pérez Araníbar 1925 - 2 dormitorios",
+      "address": "Av. Augusto Pérez Araníbar 1925, San Isidro",
+      "district": "Av. Augusto Pérez Araníbar 1925",
+      "sourceUrl": "https://urbania.pe/inmueble/proyecto/ememefin-proyecto-the-summit-lima-san-isidro-grupo-tyc-148079408?n_src=Listado&n_pg=1&n_pos=4",
+      "ownerWhatsapp": "NULL",
+      "portal": "urbania"
+    },
+    {
+      "id": "300001",
+      "title": "departamento en San Isidro",
+      "address": "Av. Javier Prado Oeste 769",
+      "district": "San Isidro",
+      "sourceUrl": "https://urbania.pe/",
+      "ownerWhatsapp": "NULL",
+      "portal": "urbania"
+    },
+    {
+      "id": "300002",
+      "title": "departamento en San Isidro - 1 dormitorios",
+      "address": "Av. Javier Prado Oeste 769",
+      "district": "San Isidro",
+      "sourceUrl": "https://urbania.pe/inmueble/proyecto/ememvein-proyecto-prado-harmony-en-lanzamiento-lima-san-isidro-grupo-tyc-148286259?n_src=Listado&n_pg=1&n_pos=1",
+      "ownerWhatsapp": "NULL",
+      "portal": "urbania"
+    },
+    {
+      "id": "300003",
+      "title": "departamento en Lima",
+      "address": "Av. Nicolás Arriola 131, Santa Catalina",
+      "district": "NULL",
+      "sourceUrl": "https://urbania.pe/inmueble/proyecto/ememvein-proyecto-catalina-sky-la-victoria-santa-catalina-grupo-tyc-144542832?n_src=Listado&n_pg=1&n_pos=2",
+      "ownerWhatsapp": "NULL",
+      "portal": "urbania"
+    },
+    {
+      "id": "300004",
+      "title": "departamento en Av. Augusto Pérez Araníbar 1925 - 2 dormitorios",
+      "address": "Av. Augusto Pérez Araníbar 1925, San Isidro",
+      "district": "Av. Augusto Pérez Araníbar 1925",
+      "sourceUrl": "https://urbania.pe/inmueble/proyecto/ememefin-proyecto-the-summit-lima-san-isidro-grupo-tyc-148079408?n_src=Listado&n_pg=1&n_pos=3",
+      "ownerWhatsapp": "NULL",
+      "portal": "urbania"
+    },
+    {
+      "id": "300005",
+      "title": "departamento en Av. Cesar Vallejo 1445 - 2 dormitorios",
+      "address": "Av. Cesar Vallejo 1445, Lince, Lima",
+      "district": "Av. Cesar Vallejo 1445",
+      "sourceUrl": "https://urbania.pe/inmueble/proyecto/ememefin-proyecto-esencial-lince-risso-alerces-inmobiliaria-58805956?n_src=Listado&n_pg=1&n_pos=4",
+      "ownerWhatsapp": "NULL",
+      "portal": "urbania"
+    },
+    {
+      "id": "300006",
+      "title": "Calle General Varela 356, Miraflores, Lima",
+      "address": "NULL",
+      "district": "Miraflores",
+      "sourceUrl": "https://babilonia.pe/inmueble/departamento-en-venta-en-miraflores-de-2-dormitorios-2-banios-80m2-area-179999-usd-de-apogeo-organizacion-inmobiliaria-136353",
+      "ownerWhatsapp": "NULL",
+      "portal": "babilonia"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttitle\taddress\tdistrict\tsourceUrl\townerWhatsapp\tportal\n210001\tDepartamento de Prueba en Miraflores\tAv. Test 123\tMiraflores\thttps://test.com/property/001\tNULL\ttest\n240002\tdepartamento en Av. Augusto Pérez Araníbar 1925\tAv. Augusto Pérez Araníbar 1925, San Isidro\tAv. Augusto Pérez Araníbar 1925\thttps://urbania.pe/\tNULL\turbania\n240003\tdepartamento en Av. Augusto Pérez Araníbar 1925 - 2 dormitorios\tAv. Augusto Pérez Araníbar 1925, San Isidro\tAv. Augusto Pérez Araníbar 1925\thttps://urbania.pe/inmueble/proyecto/ememefin-proyecto-the-summit-lima-san-isidro-grupo-tyc-148079408?n_src=Listado&n_pg=1&n_pos=1\tNULL\turbania\n240004\tdepartamento en Av. Cesar Vallejo 1445 - 2 dormitorios\tAv. Cesar Vallejo 1445, Lince, Lima\tAv. Cesar Vallejo 1445\thttps://urbania.pe/inmueble/proyecto/ememefin-proyecto-esencial-lince-risso-alerces-inmobiliaria-58805956?n_src=Listado&n_pg=1&n_pos=3\tNULL\turbania\n270001\tdepartamento en San Isidro\tCosta Living es un moderno proyecto inmobiliario, en conjunto con VyV Bravo, ubicado en Av. La Paz 2607, San Miguel, diseñado para quienes buscan comodidad, conectividad y una excelente oportunidad de inversión. Cuenta con departamentos de 2 y 3 ambientes, con áreas que van desde 40 m² hasta 76 m², ideales para vivir o invertir. El proyecto se desarrollará en dos etapas. En su primera etapa, Costa Living tendrá 296 departamentos, distribuidos en 13 pisos, ofreciendo espacios bien distribuidos y funcionales para un estilo de vida moderno.\tSan Isidro\thttps://urbania.pe/\tNULL\turbania\n270002\tdepartamento en Lima\tCosta Living es un moderno proyecto inmobiliario, en conjunto con VyV Bravo, ubicado en Av. La Paz 2607, San Miguel, diseñado para quienes buscan comodidad, conectividad y una excelente oportunidad de inversión. Cuenta con departamentos de 2 y 3 ambientes, con áreas que van desde 40 m² hasta 76 m², ideales para vivir o invertir. El proyecto se desarrollará en dos etapas. En su primera etapa, Costa Living tendrá 296 departamentos, distribuidos en 13 pisos, ofreciendo espacios bien distribuidos y funcionales para un estilo de vida moderno.\tNULL\thttps://urbania.pe/inmueble/proyecto/ememefin-proyecto-costa-living-san-miguel-san-miguel-colindante-inmobiliaria-148483180?n_src=Listado&n_pg=1&n_pos=1\tNULL\turbania\n270003\tdepartamento en San Isidro - 1 dormitorios\tAv. Javier Prado Oeste 769\tSan Isidro\thttps://urbania.pe/inmueble/proyecto/ememvein-proyecto-prado-harmony-en-lanzamiento-lima-san-isidro-grupo-tyc-148286259?n_src=Listado&n_pg=1&n_pos=2\tNULL\turbania\n270004\tdepartamento en Lima\tAv. Nicolás Arriola 131, Santa Catalina\tNULL\thttps://urbania.pe/inmueble/proyecto/ememvein-proyecto-catalina-sky-la-victoria-santa-catalina-grupo-tyc-144542832?n_src=Listado&n_pg=1&n_pos=3\tNULL\turbania\n270005\tdepartamento en Av. Augusto Pérez Araníbar 1925 - 2 dormitorios\tAv. Augusto Pérez Araníbar 1925, San Isidro\tAv. Augusto Pérez Araníbar 1925\thttps://urbania.pe/inmueble/proyecto/ememefin-proyecto-the-summit-lima-san-isidro-grupo-tyc-148079408?n_src=Listado&n_pg=1&n_pos=4\tNULL\turbania\n270006\tdepartamento en San Isidro\tAv. Nicolás Arriola 131, Santa Catalina\tSan Isidro\thttps://urbania.pe/\tNULL\turbania\n270007\tdepartamento en Lima\tAv. Nicolás Arriola 131, Santa Catalina\tNULL\thttps://urbania.pe/inmueble/proyecto/ememvein-proyecto-catalina-sky-la-victoria-santa-catalina-grupo-tyc-144542832?n_src=Listado&n_pg=1&n_pos=1\tNULL\turbania\n270008\tdepartamento en San Isidro - 1 dormitorios\tAv. Javier Prado Oeste 769\tSan Isidro\thttps://urbania.pe/inmueble/proyecto/ememvein-proyecto-prado-harmony-en-lanzamiento-lima-san-isidro-grupo-tyc-148286259?n_src=Listado&n_pg=1&n_pos=2\tNULL\turbania\n270009\tdepartamento en Lima\tCosta Living es un moderno proyecto inmobiliario, en conjunto con VyV Bravo, ubicado en Av. La Paz 2607, San Miguel, diseñado para quienes buscan comodidad, conectividad y una excelente oportunidad de inversión. Cuenta con departamentos de 2 y 3 ambientes, con áreas que van desde 40 m² hasta 76 m², ideales para vivir o invertir. El proyecto se desarrollará en dos etapas. En su primera etapa, Costa Living tendrá 296 departamentos, distribuidos en 13 pisos, ofreciendo espacios bien distribuidos y funcionales para un estilo de vida moderno.\tNULL\thttps://urbania.pe/inmueble/proyecto/ememefin-proyecto-costa-living-san-miguel-san-miguel-colindante-inmobiliaria-148483180?n_src=Listado&n_pg=1&n_pos=3\tNULL\turbania\n270010\tdepartamento en Av. Augusto Pérez Araníbar 1925 - 2 dormitorios\tAv. Augusto Pérez Araníbar 1925, San Isidro\tAv. Augusto Pérez Araníbar 1925\thttps://urbania.pe/inmueble/proyecto/ememefin-proyecto-the-summit-lima-san-isidro-grupo-tyc-148079408?n_src=Listado&n_pg=1&n_pos=4\tNULL\turbania\n300001\tdepartamento en San Isidro\tAv. Javier Prado Oeste 769\tSan Isidro\thttps://urbania.pe/\tNULL\turbania\n300002\tdepartamento en San Isidro - 1 dormitorios\tAv. Javier Prado Oeste 769\tSan Isidro\thttps://urbania.pe/inmueble/proyecto/ememvein-proyecto-prado-harmony-en-lanzamiento-lima-san-isidro-grupo-tyc-148286259?n_src=Listado&n_pg=1&n_pos=1\tNULL\turbania\n300003\tdepartamento en Lima\tAv. Nicolás Arriola 131, Santa Catalina\tNULL\thttps://urbania.pe/inmueble/proyecto/ememvein-proyecto-catalina-sky-la-victoria-santa-catalina-grupo-tyc-144542832?n_src=Listado&n_pg=1&n_pos=2\tNULL\turbania\n300004\tdepartamento en Av. Augusto Pérez Araníbar 1925 - 2 dormitorios\tAv. Augusto Pérez Araníbar 1925, San Isidro\tAv. Augusto Pérez Araníbar 1925\thttps://urbania.pe/inmueble/proyecto/ememefin-proyecto-the-summit-lima-san-isidro-grupo-tyc-148079408?n_src=Listado&n_pg=1&n_pos=3\tNULL\turbania\n300005\tdepartamento en Av. Cesar Vallejo 1445 - 2 dormitorios\tAv. Cesar Vallejo 1445, Lince, Lima\tAv. Cesar Vallejo 1445\thttps://urbania.pe/inmueble/proyecto/ememefin-proyecto-esencial-lince-risso-alerces-inmobiliaria-58805956?n_src=Listado&n_pg=1&n_pos=4\tNULL\turbania\n300006\tCalle General Varela 356, Miraflores, Lima\tNULL\tMiraflores\thttps://babilonia.pe/inmueble/departamento-en-venta-en-miraflores-de-2-dormitorios-2-banios-80m2-area-179999-usd-de-apogeo-organizacion-inmobiliaria-136353\tNULL\tbabilonia\n",
+  "stderr": "",
+  "execution_time_ms": 388
+}
