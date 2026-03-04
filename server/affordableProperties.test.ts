@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { generateMockProperties } from "./scrapers";
+import { generateMockProperties } from "./testUtils";
 
 describe("Affordable Properties Search", () => {
   it("should generate affordable apartments for sale ($50k-$150k)", () => {

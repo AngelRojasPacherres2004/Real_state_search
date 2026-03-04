@@ -5,7 +5,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import * as db from "./db";
-import { PropertyScraper, generateMockProperties, type SearchParams } from "./scrapers";
+import { PropertyScraper, type SearchParams } from "./scrapers";
 import { savedSearchRouter, searchHistoryRouter } from "./savedSearchRouter";
 
 const scraper = new PropertyScraper();
@@ -57,9 +57,9 @@ export const appRouter = router({
           };
         }
 
-        // Otherwise, generate mock data for demonstration
-        // In production, this would trigger real scraping
-        const mockProperties = generateMockProperties(50);
+        // Otherwise, attempt scraping across configured portals
+        // (scrapers currently may return empty arrays if not implemented)
+        const mockProperties = await scraper.scrapeAll(input as SearchParams);
         
         // Filter mock properties based on input
         let filtered = mockProperties;

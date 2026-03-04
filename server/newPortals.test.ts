@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { PropertyScraper, generateMockProperties } from "./scrapers";
+import { PropertyScraper } from "./scrapers";
+import { generateMockProperties } from "./testUtils";
 
 describe("New Portals Integration", () => {
   it("should include all 14 portals in PropertyScraper", () => {
