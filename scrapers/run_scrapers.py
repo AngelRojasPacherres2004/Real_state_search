@@ -7,9 +7,14 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from urbania import UrbaniaScraper
 from adondevivir import AdondevivirScraper
+from infocasas import InfocasasScraper
+from properati import ProperatiScraper
+from babilonia import BabiloniaScraper
+from nexoinmobiliario import NexoInmobiliarioScraper
+from mitula import MitulaScraper
+from laencontre import LaEncontreScraper
 import logging
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
@@ -18,57 +23,53 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 def run_all_scrapers():
-    """Run all available scrapers"""
     scrapers = [
         ('Urbania', UrbaniaScraper),
         ('Adondevivir', AdondevivirScraper),
-        # Add more scrapers here as they're implemented
-        # ('Infocasas', InfocasasScraper),
+        ('Infocasas', InfocasasScraper),
+        ('Properati', ProperatiScraper),
+        ('Babilonia', BabiloniaScraper),
+        ('Nexo Inmobiliario', NexoInmobiliarioScraper),
+        ('Mitula', MitulaScraper),
+        ('La Encontre', LaEncontreScraper),
     ]
     
-    results = []
-    total_properties = 0
+    logger.info("=" * 50)
+    logger.info("INICIANDO EJECUCIÓN DE TODOS LOS SCRAPERS")
+    logger.info("=" * 50)
     
-    logger.info("=" * 60)
-    logger.info("STARTING SCRAPER RUN")
-    logger.info("=" * 60)
+    successful = []
+    failed = []
     
-    for name, ScraperClass in scrapers:
-        logger.info(f"\nRunning {name} scraper...")
+    for name, scraper_class in scrapers:
         try:
-            scraper = ScraperClass()
-            result = scraper.run()
-            results.append({
-                'portal': name,
-                'result': result
-            })
-            total_properties += result['properties_scraped']
-            
-            if result['success']:
-                logger.info(f"✅ {name}: {result['properties_scraped']} properties in {result['duration_seconds']:.2f}s")
-            else:
-                logger.error(f"❌ {name}: Failed")
-                if result['errors']:
-                    for error in result['errors']:
-                        logger.error(f"   - {error}")
+            logger.info(f"▶ Iniciando scraper: {name}")
+            scraper = scraper_class()
+            scraper.scrape()
+            successful.append(name)
+            logger.info(f"✓ {name} completado exitosamente")
         except Exception as e:
-            logger.error(f"❌ {name}: Exception - {str(e)}")
-            results.append({
-                'portal': name,
-                'result': {
-                    'success': False,
-                    'properties_scraped': 0,
-                    'errors': [str(e)]
-                }
-            })
+            failed.append((name, str(e)))
+            logger.error(f"✗ Error en {name}: {str(e)}", exc_info=True)
+        
+        logger.info("")
     
-    logger.info("\n" + "=" * 60)
-    logger.info("SCRAPER RUN COMPLETE")
-    logger.info("=" * 60)
-    logger.info(f"Total properties scraped: {total_properties}")
-    logger.info("=" * 60)
+    # Resumen final
+    logger.info("=" * 50)
+    logger.info("RESUMEN DE EJECUCIÓN")
+    logger.info("=" * 50)
+    logger.info(f"Exitosos: {len(successful)}/{len(scrapers)}")
+    if successful:
+        for name in successful:
+            logger.info(f"  ✓ {name}")
     
-    return results
+    if failed:
+        logger.warning(f"Fallidos: {len(failed)}/{len(scrapers)}")
+        for name, error in failed:
+            logger.warning(f"  ✗ {name}: {error}")
+    
+    logger.info("=" * 50)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     run_all_scrapers()

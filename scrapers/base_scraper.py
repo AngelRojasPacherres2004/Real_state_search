@@ -37,6 +37,19 @@ class BaseScraper:
         except mysql.connector.Error as err:
             self.logger.error(f"Database connection error: {err}")
             return False
+
+    def ensure_db_connection(self):
+        """Ensure database connection is active, reconnect if needed"""
+        try:
+            if self.db_connection is None or not self.db_connection.is_connected():
+                self.logger.warning("Database connection lost, reconnecting...")
+                self.connect_db()
+            else:
+                # Ping to keep connection alive
+                self.db_connection.ping(reconnect=True, attempts=3, delay=2)
+        except mysql.connector.Error as err:
+            self.logger.error(f"Error reconnecting to database: {err}")
+            self.connect_db()
             
     def close_db(self):
         """Close database connection"""
@@ -90,6 +103,9 @@ class BaseScraper:
         Returns:
             True if successful, False otherwise
         """
+        # Ensure connection is alive before saving
+        self.ensure_db_connection()
+
         if not self.db_connection or not self.db_connection.is_connected():
             self.logger.error("No database connection")
             return False

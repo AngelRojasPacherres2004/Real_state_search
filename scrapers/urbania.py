@@ -10,7 +10,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
-from selenium.common.exceptions import TimeoutException, NoSuchElementException
+from selenium.common.exceptions import TimeoutException, NoSuchElementException, StaleElementReferenceException
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -28,17 +28,23 @@ class UrbaniaScraper(BaseScraper):
         """Initialize Selenium WebDriver"""
         from selenium.webdriver.chrome.service import Service
         from webdriver_manager.chrome import ChromeDriverManager
-    
+
         chrome_options = Options()
         chrome_options.add_argument('--headless')
         chrome_options.add_argument('--no-sandbox')
         chrome_options.add_argument('--disable-dev-shm-usage')
         chrome_options.add_argument('--disable-gpu')
         chrome_options.add_argument('--window-size=1920,1080')
-        chrome_options.add_argument(f'user-agent={self.session.headers["User-Agent"]}')
-    
+        # More realistic user agent
+        chrome_options.add_argument('user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36')
+        # Disable automation flags to avoid detection
+        chrome_options.add_experimental_option('excludeSwitches', ['enable-automation'])
+        chrome_options.add_experimental_option('useAutomationExtension', False)
+
         service = Service(ChromeDriverManager().install())
         self.driver = webdriver.Chrome(service=service, options=chrome_options)
+        # Hide webdriver flag
+        self.driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
         self.logger.info("Chrome WebDriver initialized")
         
     def close_driver(self):
@@ -48,23 +54,17 @@ class UrbaniaScraper(BaseScraper):
             self.logger.info("Chrome WebDriver closed")
             
     def extract_price(self, price_text: str) -> tuple:
-        """
-        Extract price and currency from text
-        Returns: (price, currency)
-        """
-        # Remove commas and spaces
+        """Extract price and currency from text"""
         price_text = price_text.replace(',', '').replace(' ', '')
         
-        # Try to match S/ or USD
         if 'S/' in price_text or 'S/.' in price_text:
             match = re.search(r'S/\.?(\d+(?:\.\d+)?)', price_text)
             if match:
-                # Convert soles to USD (approximate rate: 1 USD = 3.75 PEN)
                 soles = float(match.group(1))
                 usd = round(soles / 3.75, 2)
                 return (usd, 'USD')
         elif 'USD' in price_text or '$' in price_text:
-            match = re.search(r'(?:USD|\\$)(\d+(?:\.\d+)?)', price_text)
+            match = re.search(r'(?:USD|\$)(\d+(?:\.\d+)?)', price_text)
             if match:
                 return (float(match.group(1)), 'USD')
                 
@@ -80,89 +80,15 @@ class UrbaniaScraper(BaseScraper):
         match = re.search(r'(\d+(?:\.\d+)?)\s*m', text)
         return float(match.group(1)) if match else None
         
-    def extract_contact_info(self, property_url: str) -> Dict:
-        """
-        Extract contact information from property detail page
-        
-        Args:
-            property_url: URL of the property detail page
-            
-        Returns:
-            Dictionary with contact information
-        """
-        contact_info = {
-            'ownerName': None,
-            'ownerPhone': None,
-            'ownerEmail': None,
-            'ownerWhatsapp': None
-        }
-        
-        try:
-            self.logger.info(f"Extracting contact info from: {property_url}")
-            self.driver.get(property_url)
-            time.sleep(2)  # Wait for page to load
-            
-            page_text = self.driver.page_source.lower()
-            
-            # Extract phone numbers (Peruvian format)
-            phone_patterns = [
-                r'(\+51\s?)?\(?9\d{2}\)?[\s-]?\d{3}[\s-]?\d{3}',  # Mobile: +51 9XX XXX XXX
-                r'(\+51\s?)?\(?\d{1}\)?[\s-]?\d{3}[\s-]?\d{4}',  # Landline: +51 1 XXX XXXX
-                r'\d{9}',  # Simple 9-digit format
-            ]
-            
-            for pattern in phone_patterns:
-                match = re.search(pattern, self.driver.page_source)
-                if match:
-                    phone = match.group(0).strip()
-                    # Clean phone number
-                    phone = re.sub(r'[^0-9+]', '', phone)
-                    if len(phone) >= 9:
-                        contact_info['ownerPhone'] = phone
-                        contact_info['ownerWhatsapp'] = phone  # Assume WhatsApp available
-                        break
-            
-            # Extract email
-            email_match = re.search(r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}', self.driver.page_source)
-            if email_match:
-                contact_info['ownerEmail'] = email_match.group(0)
-            
-            # Extract owner name (look for common patterns)
-            name_patterns = [
-                r'(?:propietario|dueño|contacto):\s*([A-Z][a-záéíóúñ]+(?:\s+[A-Z][a-záéíóúñ]+)*)',
-                r'(?:vendedor|agente):\s*([A-Z][a-záéíóúñ]+(?:\s+[A-Z][a-záéíóúñ]+)*)',
-            ]
-            
-            for pattern in name_patterns:
-                match = re.search(pattern, self.driver.page_source, re.IGNORECASE)
-                if match:
-                    contact_info['ownerName'] = match.group(1).strip()
-                    break
-            
-            self.logger.info(f"Extracted contact: phone={contact_info['ownerPhone']}, email={contact_info['ownerEmail']}")
-            
-        except Exception as e:
-            self.logger.error(f"Error extracting contact info: {e}")
-        
-        return contact_info
-    
     def scrape_property_card(self, card_element) -> Optional[Dict]:
-        """
-        Extract data from a single property card
-        
-        Args:
-            card_element: Selenium WebElement of the property card
-            
-        Returns:
-            Dictionary with property data or None if failed
-        """
+        """Extract data from a single property card"""
         try:
             property_data = {
                 'externalId': None,
                 'title': None,
                 'description': None,
-                'operationType': 'venta',  # Default for this search (lowercase)
-                'propertyType': 'departamento',  # Default for this search (lowercase)
+                'operationType': 'venta',
+                'propertyType': 'departamento',
                 'price': None,
                 'currency': 'USD',
                 'area': None,
@@ -172,7 +98,7 @@ class UrbaniaScraper(BaseScraper):
                 'province': 'Lima',
                 'department': 'Lima',
                 'address': None,
-                'latitude': -12.0464,  # Default Lima coordinates
+                'latitude': -12.0464,
                 'longitude': -77.0428,
                 'imageUrl': None,
                 'sourceUrl': None,
@@ -189,25 +115,32 @@ class UrbaniaScraper(BaseScraper):
                 property_url = link.get_attribute('href')
                 if property_url:
                     property_data['sourceUrl'] = property_url
-                    # Extract ID from URL
                     id_match = re.search(r'/(\d+)(?:/|$)', property_url)
                     if id_match:
                         property_data['externalId'] = f"urb-{id_match.group(1)}"
                     else:
-                        # Generate ID from URL hash
                         property_data['externalId'] = f"urb-{hash(property_url) % 10000000}"
-            except NoSuchElementException:
+            except (NoSuchElementException, StaleElementReferenceException):
                 pass
                 
-            # Extract image
+            # Extract image - ignorar logos y SVGs
             try:
-                img = card_element.find_element(By.TAG_NAME, 'img')
-                property_data['imageUrl'] = img.get_attribute('src')
-            except NoSuchElementException:
+                imgs = card_element.find_elements(By.TAG_NAME, 'img')
+                for img in imgs:
+                    src = img.get_attribute('src') or ''
+                    if src and '.svg' not in src and 'brand' not in src and 'logo' not in src:
+                        if any(ext in src for ext in ['.jpg', '.jpeg', '.png', '.webp']) or 'naventcdn' in src:
+                            property_data['imageUrl'] = src
+                            break
+            except (NoSuchElementException, StaleElementReferenceException):
                 pass
                 
             # Extract text content
-            card_text = card_element.text
+            try:
+                card_text = card_element.text
+            except StaleElementReferenceException:
+                return None
+                
             lines = [line.strip() for line in card_text.split('\n') if line.strip()]
             
             # Extract price
@@ -219,12 +152,13 @@ class UrbaniaScraper(BaseScraper):
                         property_data['currency'] = currency
                     break
                     
-            # Extract address and district
+            # Extract address
             for line in lines:
                 if any(keyword in line.lower() for keyword in ['av.', 'calle', 'jr.', 'ca.']):
                     property_data['address'] = line
                     break
                     
+            # Extract district
             for line in lines:
                 if ',' in line and any(district in line for district in ['Lima', 'Miraflores', 'San Isidro', 'Surco', 'San Borja']):
                     parts = line.split(',')
@@ -232,13 +166,40 @@ class UrbaniaScraper(BaseScraper):
                         property_data['district'] = parts[0].strip()
                     break
                     
-            # Extract bedrooms
+            # Extract bedrooms - improved regex
             for line in lines:
-                if 'dorm' in line.lower():
-                    bedrooms = self.extract_number(line)
-                    if bedrooms:
-                        property_data['bedrooms'] = bedrooms
-                    break
+                if 'dorm' in line.lower() or 'hab' in line.lower():
+                    # Try multiple patterns
+                    patterns = [
+                        r'(\d+)\s*dorm', r'(\d+)\s*hab', 
+                        r'(\d+)\s*couch', r'(\d+)\s*pieza'
+                    ]
+                    for pattern in patterns:
+                        match = re.search(pattern, line.lower())
+                        if match:
+                            bedrooms = int(match.group(1))
+                            if bedrooms:
+                                property_data['bedrooms'] = bedrooms
+                            break
+                    if property_data['bedrooms']:
+                        break
+                        
+            # Extract bathrooms - improved regex  
+            for line in lines:
+                if 'bañ' in line.lower() or 'bath' in line.lower():
+                    patterns = [
+                        r'(\d+)\s*bañ', r'(\d+)\s*bath',
+                        r'(\d+)\s*baño'
+                    ]
+                    for pattern in patterns:
+                        match = re.search(pattern, line.lower())
+                        if match:
+                            bathrooms = int(match.group(1))
+                            if bathrooms:
+                                property_data['bathrooms'] = bathrooms
+                            break
+                    if property_data['bathrooms']:
+                        break
                     
             # Extract area
             for line in lines:
@@ -278,7 +239,7 @@ class UrbaniaScraper(BaseScraper):
             else:
                 property_data['title'] = f"{property_data['propertyType']} en Lima"
                 
-            # Create description from available data
+            # Create description
             desc_parts = []
             if property_data['bedrooms']:
                 desc_parts.append(f"{property_data['bedrooms']} dormitorios")
@@ -293,84 +254,126 @@ class UrbaniaScraper(BaseScraper):
             
             # Validate required fields
             if not property_data['price']:
-                self.logger.warning(f"Skipping property - missing required fields")
+                self.logger.warning(f"Skipping property - no price found")
                 return None
-            
-            # Extract contact information from detail page
-            if property_data['sourceUrl']:
-                try:
-                    contact_info = self.extract_contact_info(property_data['sourceUrl'])
-                    property_data.update(contact_info)
-                except Exception as e:
-                    self.logger.error(f"Error extracting contact info: {e}")
                 
             return property_data      
         except Exception as e:
             self.logger.error(f"Error extracting property card: {e}")
             return None
             
-    def scrape_page(self, url: str) -> List[Dict]:
-        """
-        Scrape properties from a single page
+    def scrape_page(self, url: str, max_pages: int = 3) -> List[Dict]:
+        """Scrape properties from a single page or multiple pages if pagination is available"""
+        all_properties = []
         
-        Args:
-            url: URL to scrape
-            
-        Returns:
-            List of property dictionaries
-        """
+        # First page
+        page_properties = self._scrape_current_page(url)
+        all_properties.extend(page_properties)
+        self.logger.info(f"Page 1: extracted {len(page_properties)} properties")
+        
+        # Try subsequent pages
+        for page in range(2, max_pages + 1):
+            try:
+                # Try URL-based pagination first
+                if '?' in url:
+                    page_url = f"{url}&page={page}"
+                else:
+                    page_url = f"{url}?page={page}"
+                
+                self.logger.info(f"Attempting to load page {page}: {page_url}")
+                self.driver.get(page_url)
+                time.sleep(3)
+                
+                page_properties = self._scrape_current_page(page_url)
+                if len(page_properties) == 0:
+                    self.logger.info(f"No properties found on page {page}, stopping pagination")
+                    break
+                    
+                all_properties.extend(page_properties)
+                self.logger.info(f"Page {page}: extracted {len(page_properties)} properties")
+                
+            except Exception as e:
+                self.logger.warning(f"Could not scrape page {page}: {e}")
+                break
+                
+        return all_properties
+        
+    def _scrape_current_page(self, url: str = None) -> List[Dict]:
+        """Scrape properties from the current page"""
         properties = []
         
         try:
-            self.logger.info(f"Loading page: {url}")
-            self.driver.get(url)
+            current_url = url or self.driver.current_url
+            self.logger.info(f"Scraping page: {current_url}")
             
-            # Wait for property cards to load
-            wait = WebDriverWait(self.driver, 15)
+            # Wait for page to load
+            wait = WebDriverWait(self.driver, 20)
             wait.until(EC.presence_of_element_located((By.TAG_NAME, 'img')))
             
-            # Additional wait for dynamic content
-            time.sleep(3)
+            # Wait for dynamic content
+            time.sleep(4)
             
             # Scroll to load more content
             self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight/2);")
             time.sleep(2)
+            self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            time.sleep(2)
             
-            # Find property cards - they contain images and text
-            # Strategy: find all divs that contain both an image and price text
-            page_source = self.driver.page_source
+            # Find property cards - improved selectors
+            potential_cards = []
             
-            # Find all elements that look like property cards
-            potential_cards = self.driver.find_elements(By.XPATH, "//div[.//img and contains(., 'S/') or contains(., 'USD')]")
+            # Try multiple selectors to find property cards
+            selectors = [
+                "//div[contains(@class, 'posting-card')]",
+                "//div[contains(@class, 'card') and .//img]",
+                "//article[contains(@class, 'property')]",
+                "//div[.//img and (.//span[contains(text(), 'S/')] or .//span[contains(text(), 'USD')] or .//span[contains(text(), '$')])]",
+                "//div[.//img and contains(., 'S/') or contains(., 'USD') or contains(., '$')]"
+            ]
             
+            for selector in selectors:
+                try:
+                    cards = self.driver.find_elements(By.XPATH, selector)
+                    if len(cards) > len(potential_cards):
+                        potential_cards = cards
+                        self.logger.debug(f"Found {len(cards)} cards with selector: {selector}")
+                except Exception as e:
+                    continue
+                    
             self.logger.info(f"Found {len(potential_cards)} potential property cards")
             
-            for card in potential_cards[:20]:  # Limit to first 20 per page
-                property_data = self.scrape_property_card(card)
-                if property_data:
-                    properties.append(property_data)
-                    self.logger.info(f"Extracted: {property_data['title']} - ${property_data['price']}")
+            # Fix stale element - releer elementos cada iteracion
+            for i in range(min(50, len(potential_cards))):
+                try:
+                    potential_cards = self.driver.find_elements(By.XPATH, selectors[0])
+                    if i >= len(potential_cards):
+                        break
+                    property_data = self.scrape_property_card(potential_cards[i])
+                    if property_data:
+                        properties.append(property_data)
+                        self.logger.info(f"Extracted: {property_data['title']} - ${property_data['price']}")
+                    time.sleep(0.5)
+                except StaleElementReferenceException:
+                    self.logger.warning(f"Stale element en card {i}, continuando...")
+                    continue
+                except Exception as e:
+                    self.logger.debug(f"Error en card {i}: {e}")
+                    continue
                     
         except TimeoutException:
-            self.logger.error(f"Timeout loading page: {url}")
+            self.logger.error(f"Timeout loading page")
         except Exception as e:
             self.logger.error(f"Error scraping page: {e}")
             
         return properties
         
     def scrape(self) -> int:
-        """
-        Main scraping method
-        
-        Returns:
-            Number of properties scraped
-        """
+        """Main scraping method"""
         total_properties = 0
         
         try:
             self.init_driver()
             
-            # URLs to scrape
             search_urls = [
                 f"{self.base_url}/buscar/venta-de-departamentos",
                 f"{self.base_url}/buscar/venta-de-casas",
@@ -381,26 +384,21 @@ class UrbaniaScraper(BaseScraper):
             for url in search_urls:
                 self.logger.info(f"Scraping: {url}")
                 
-                # Determine operation type and property type from URL
                 operation_type = 'alquiler' if 'alquiler' in url else 'venta'
                 property_type = 'casa' if 'casas' in url else 'departamento'
                 
-                properties = self.scrape_page(url)
+                properties = self.scrape_page(url, max_pages=3)  # Scrape up to 3 pages per category
                 
-                # Update operation and property types
                 for prop in properties:
                     prop['operationType'] = operation_type
                     prop['propertyType'] = property_type
                     
-                # Save to database
                 for prop in properties:
                     if self.save_property(prop):
                         total_properties += 1
                         
                 self.logger.info(f"Saved {len(properties)} properties from {url}")
-                
-                # Delay between pages
-                time.sleep(2)
+                time.sleep(3)
                 
         finally:
             self.close_driver()
