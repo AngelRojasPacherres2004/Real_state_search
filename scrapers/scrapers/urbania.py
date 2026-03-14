@@ -26,9 +26,6 @@ class UrbaniaScraper(BaseScraper):
         
     def init_driver(self):
         """Initialize Selenium WebDriver"""
-        from selenium.webdriver.chrome.service import Service
-        from webdriver_manager.chrome import ChromeDriverManager
-    
         chrome_options = Options()
         chrome_options.add_argument('--headless')
         chrome_options.add_argument('--no-sandbox')
@@ -37,7 +34,7 @@ class UrbaniaScraper(BaseScraper):
         chrome_options.add_argument('--window-size=1920,1080')
         chrome_options.add_argument(f'user-agent={self.session.headers["User-Agent"]}')
     
-        service = Service(ChromeDriverManager().install())
+        service = self.get_webdriver_service('chrome')
         self.driver = webdriver.Chrome(service=service, options=chrome_options)
         self.logger.info("Chrome WebDriver initialized")
         

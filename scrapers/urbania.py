@@ -9,7 +9,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.edge.options import Options
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, StaleElementReferenceException
 import sys
 import os
@@ -26,32 +26,41 @@ class UrbaniaScraper(BaseScraper):
         
     def init_driver(self):
         """Initialize Selenium WebDriver"""
-        from selenium.webdriver.chrome.service import Service
-        from webdriver_manager.chrome import ChromeDriverManager
+        service = self.get_webdriver_service('edge')
 
-        chrome_options = Options()
-        chrome_options.add_argument('--headless')
-        chrome_options.add_argument('--no-sandbox')
-        chrome_options.add_argument('--disable-dev-shm-usage')
-        chrome_options.add_argument('--disable-gpu')
-        chrome_options.add_argument('--window-size=1920,1080')
+        edge_options = Options()
+        edge_options.add_argument('--headless')
+        edge_options.add_argument('--no-sandbox')
+        edge_options.add_argument('--disable-dev-shm-usage')
+        edge_options.add_argument('--disable-gpu')
+        edge_options.add_argument('--window-size=1920,1080')
+        edge_options.add_argument('--disable-infobars')
+        edge_options.add_argument('--disable-blink-features=AutomationControlled')
+        edge_options.add_argument('--disable-features=IsolateOrigins,site-per-process')
+
         # More realistic user agent
-        chrome_options.add_argument('user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36')
+        edge_options.add_argument(
+            'user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        )
         # Disable automation flags to avoid detection
-        chrome_options.add_experimental_option('excludeSwitches', ['enable-automation'])
-        chrome_options.add_experimental_option('useAutomationExtension', False)
+        edge_options.add_experimental_option('excludeSwitches', ['enable-automation'])
+        edge_options.add_experimental_option('useAutomationExtension', False)
 
-        service = Service(ChromeDriverManager().install())
-        self.driver = webdriver.Chrome(service=service, options=chrome_options)
-        # Hide webdriver flag
+        self.driver = webdriver.Edge(service=service, options=edge_options)
+
+        # Hide webdriver flag and other automation indicators
         self.driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
-        self.logger.info("Chrome WebDriver initialized")
+        self.driver.execute_script("window.navigator.chrome = { runtime: {} };" )
+        self.driver.execute_script("Object.defineProperty(navigator, 'languages', {get: () => ['en-US', 'en']});")
+        self.driver.execute_script("Object.defineProperty(navigator, 'plugins', {get: () => [1, 2, 3, 4, 5]});")
+
+        self.logger.info("Edge WebDriver initialized")
         
     def close_driver(self):
         """Close Selenium WebDriver"""
         if self.driver:
             self.driver.quit()
-            self.logger.info("Chrome WebDriver closed")
+            self.logger.info("Edge WebDriver closed")
             
     def extract_price(self, price_text: str) -> tuple:
         """Extract price and currency from text"""
@@ -109,30 +118,33 @@ class UrbaniaScraper(BaseScraper):
                 'ownerWhatsapp': None
             }
             
-            # Extract link and external ID
+            # Extract link and external ID (prefer listing URL)
             try:
-                link = card_element.find_element(By.TAG_NAME, 'a')
-                property_url = link.get_attribute('href')
+                property_url = self._select_best_anchor(card_element, base_url=self.base_url)
                 if property_url:
                     property_data['sourceUrl'] = property_url
-                    id_match = re.search(r'/(\d+)(?:/|$)', property_url)
+                    id_match = re.search(r'/([0-9]+)(?:/|$)', property_url)
                     if id_match:
                         property_data['externalId'] = f"urb-{id_match.group(1)}"
                     else:
                         property_data['externalId'] = f"urb-{hash(property_url) % 10000000}"
             except (NoSuchElementException, StaleElementReferenceException):
                 pass
-                
-            # Extract image - ignorar logos y SVGs
+
+            # Extract image (use shared logic to avoid placeholders/brand logos)
             try:
-                imgs = card_element.find_elements(By.TAG_NAME, 'img')
-                for img in imgs:
-                    src = img.get_attribute('src') or ''
-                    if src and '.svg' not in src and 'brand' not in src and 'logo' not in src:
-                        if any(ext in src for ext in ['.jpg', '.jpeg', '.png', '.webp']) or 'naventcdn' in src:
-                            property_data['imageUrl'] = src
-                            break
-            except (NoSuchElementException, StaleElementReferenceException):
+                image_url = self._select_best_image(card_element, base_url=self.base_url)
+                if image_url:
+                    property_data['imageUrl'] = image_url
+            except Exception:
+                pass
+
+            # Extract contact info from detail page (if available)
+            try:
+                if property_data.get('sourceUrl'):
+                    contact_info = self.extract_contact_info(property_data['sourceUrl'])
+                    property_data.update(contact_info)
+            except Exception:
                 pass
                 
             # Extract text content
@@ -305,61 +317,58 @@ class UrbaniaScraper(BaseScraper):
         try:
             current_url = url or self.driver.current_url
             self.logger.info(f"Scraping page: {current_url}")
-            
-            # Wait for page to load
-            wait = WebDriverWait(self.driver, 20)
-            wait.until(EC.presence_of_element_located((By.TAG_NAME, 'img')))
-            
-            # Wait for dynamic content
-            time.sleep(4)
-            
+            self.logger.info(f"Page title: {self.driver.title}")
+
+            # Wait for page to load and for property cards to appear
+            wait = WebDriverWait(self.driver, 40)
+            try:
+                wait.until(EC.presence_of_element_located((By.XPATH, "//div[contains(@class, 'posting-card')]")))
+            except TimeoutException:
+                self.logger.warning("Timeout waiting for posting-card elements; proceeding anyway")
+
+            # Wait for document ready state complete
+            try:
+                WebDriverWait(self.driver, 20).until(
+                    lambda d: d.execute_script('return document.readyState') == 'complete'
+                )
+            except Exception:
+                pass
+
             # Scroll to load more content
-            self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight/2);")
-            time.sleep(2)
-            self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            time.sleep(2)
-            
-            # Find property cards - improved selectors
-            potential_cards = []
-            
-            # Try multiple selectors to find property cards
+            for _ in range(3):
+                self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+                time.sleep(2)
+
+            # Find property cards using stable selectors
             selectors = [
-                "//div[contains(@class, 'posting-card')]",
-                "//div[contains(@class, 'card') and .//img]",
-                "//article[contains(@class, 'property')]",
-                "//div[.//img and (.//span[contains(text(), 'S/')] or .//span[contains(text(), 'USD')] or .//span[contains(text(), '$')])]",
-                "//div[.//img and contains(., 'S/') or contains(., 'USD') or contains(., '$')]"
+                "//div[contains(@class, 'posting-card') or contains(@class, 'postingCard')]",
+                "//div[contains(@class, 'posting-card') or contains(@class, 'postingCard')]/..",  # sometimes nested
+                "//a[contains(@href, '/inmueble/')]",
             ]
-            
+
+            potential_cards = []
             for selector in selectors:
                 try:
                     cards = self.driver.find_elements(By.XPATH, selector)
-                    if len(cards) > len(potential_cards):
+                    if cards and len(cards) > len(potential_cards):
                         potential_cards = cards
                         self.logger.debug(f"Found {len(cards)} cards with selector: {selector}")
                 except Exception as e:
-                    continue
-                    
+                    self.logger.debug(f"Error finding cards with selector {selector}: {e}")
+
             self.logger.info(f"Found {len(potential_cards)} potential property cards")
-            
-            # Fix stale element - releer elementos cada iteracion
-            for i in range(min(50, len(potential_cards))):
+
+            for i, card in enumerate(potential_cards[:150]):
                 try:
-                    potential_cards = self.driver.find_elements(By.XPATH, selectors[0])
-                    if i >= len(potential_cards):
-                        break
-                    property_data = self.scrape_property_card(potential_cards[i])
+                    property_data = self.scrape_property_card(card)
                     if property_data:
                         properties.append(property_data)
                         self.logger.info(f"Extracted: {property_data['title']} - ${property_data['price']}")
-                    time.sleep(0.5)
-                except StaleElementReferenceException:
-                    self.logger.warning(f"Stale element en card {i}, continuando...")
-                    continue
+                    time.sleep(0.2)
                 except Exception as e:
-                    self.logger.debug(f"Error en card {i}: {e}")
+                    self.logger.debug(f"Error processing card {i}: {e}")
                     continue
-                    
+
         except TimeoutException:
             self.logger.error(f"Timeout loading page")
         except Exception as e:

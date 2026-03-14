@@ -180,6 +180,21 @@ ORDER BY total DESC;
 
 **Solución**: Verificar variable de entorno `DATABASE_URL`
 
+### Error al descargar WebDriver (msedgedriver / chromedriver)
+
+Si los scrapers no pueden iniciar Selenium y muestran errores relacionados con la descarga de `msedgedriver` o `chromedriver`, puedes usar un driver local:
+
+1. Descarga el driver correspondiente a tu navegador (Edge/Chrome) y colócalo en una carpeta del sistema.
+2. Crea o edita el archivo `.env` en la raíz del proyecto y agrega:
+
+```env
+EDGE_DRIVER_PATH=C:\ruta\a\msedgedriver.exe
+# o para Chrome:
+# CHROME_DRIVER_PATH=C:\ruta\a\chromedriver.exe
+```
+
+3. Ejecuta de nuevo el scraper (por ejemplo `python scrapers/run_scrapers.py`).
+
 ---
 
 ## 📞 Soporte

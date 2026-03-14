@@ -21,7 +21,7 @@ if DATABASE_URL:
     import re
     # Remove query parameters first
     url_without_params = DATABASE_URL.split('?')[0]
-    match = re.match(r'mysql://([^:]+):([^@]+)@([^:/]+)(?::(\d+))?/(.+)', url_without_params)
+    match = re.match(r'mysql://([^:]*):([^@]*)@([^:/]+)(?::(\d+))?/(.+)', url_without_params)
     if match:
         DB_CONFIG = {
             'host': match.group(3),
@@ -38,6 +38,10 @@ SCRAPER_CONFIG = {
     'max_retries': 3,  # Maximum number of retries
     'delay_between_requests': 1,  # Delay in seconds between requests
     'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    # Optional local driver paths (override webdriver-manager downloads)
+    'edge_driver_path': os.getenv('EDGE_DRIVER_PATH', ''),
+    'chrome_driver_path': os.getenv('CHROME_DRIVER_PATH', ''),
+    'gecko_driver_path': os.getenv('GECKO_DRIVER_PATH', ''),
 }
 
 # Portal URLs

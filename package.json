@@ -10,7 +10,7 @@
     "check": "tsc --noEmit",
     "format": "prettier --write .",
     "test": "vitest run",
-    "db:push": "drizzle-kit generate && drizzle-kit migrate"
+    "db:push": "echo 'db:push disabled: do not run migrations in this local data-only setup'"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.693.0",

@@ -92,24 +92,25 @@ class MitulaScraper(BaseScraper):
     def init_driver(self):
         """Initialize Selenium WebDriver"""
         from selenium import webdriver
-        from selenium.webdriver.chrome.options import Options
+        from selenium.webdriver.edge.options import Options
         
-        chrome_options = Options()
-        chrome_options.add_argument('--headless')
-        chrome_options.add_argument('--no-sandbox')
-        chrome_options.add_argument('--disable-dev-shm-usage')
-        chrome_options.add_argument('--disable-gpu')
-        chrome_options.add_argument('--window-size=1920,1080')
-        chrome_options.add_argument(f'user-agent={self.session.headers["User-Agent"]}')
+        edge_options = Options()
+        edge_options.add_argument('--headless')
+        edge_options.add_argument('--no-sandbox')
+        edge_options.add_argument('--disable-dev-shm-usage')
+        edge_options.add_argument('--disable-gpu')
+        edge_options.add_argument('--window-size=1920,1080')
+        edge_options.add_argument(f'user-agent={self.session.headers["User-Agent"]}')
         
-        self.driver = webdriver.Chrome(options=chrome_options)
-        self.logger.info("Chrome WebDriver initialized")
+        service = self.get_webdriver_service('edge')
+        self.driver = webdriver.Edge(service=service, options=edge_options)
+        self.logger.info("Edge WebDriver initialized")
     
     def close_driver(self):
         """Close Selenium WebDriver"""
         if self.driver:
             self.driver.quit()
-            self.logger.info("Chrome WebDriver closed")
+            self.logger.info("Edge WebDriver closed")
     
     def scroll_page(self, scrolls=3):
         """Scroll page to load dynamic content"""
@@ -192,14 +193,8 @@ class MitulaScraper(BaseScraper):
             card_html = card.get_attribute('outerHTML')
             card_text = card.text
             
-            # Extract property URL
-            property_url = None
-            try:
-                link = card.find_element(By.CSS_SELECTOR, "a[href*='casas.mitula.pe']")
-                property_url = link.get_attribute('href')
-            except:
-                return None
-            
+# Extract property URL (prefer listing link)
+            property_url = self._select_best_anchor(card)
             if not property_url or 'mitula.pe' not in property_url:
                 return None
             
@@ -306,12 +301,7 @@ class MitulaScraper(BaseScraper):
                 pass
             
             # Extract image URL
-            image_url = None
-            try:
-                img = card.find_element(By.TAG_NAME, "img")
-                image_url = img.get_attribute('src')
-            except:
-                pass
+            image_url = self._select_best_image(card)
             
             # Extract amenities from card text
             amenities = []

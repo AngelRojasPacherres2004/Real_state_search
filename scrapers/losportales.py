@@ -91,24 +91,25 @@ class LosPortalesScraper(BaseScraper):
 
     def init_driver(self):
         """Initialize Selenium WebDriver"""
-        from selenium.webdriver.chrome.options import Options
-        chrome_options = Options()
-        chrome_options.add_argument('--headless')
-        chrome_options.add_argument('--no-sandbox')
-        chrome_options.add_argument('--disable-dev-shm-usage')
-        chrome_options.add_argument('--disable-gpu')
-        chrome_options.add_argument('--window-size=1920,1080')
-        chrome_options.add_argument(f'user-agent={self.session.headers["User-Agent"]}')
+        from selenium.webdriver.edge.options import Options
+        edge_options = Options()
+        edge_options.add_argument('--headless')
+        edge_options.add_argument('--no-sandbox')
+        edge_options.add_argument('--disable-dev-shm-usage')
+        edge_options.add_argument('--disable-gpu')
+        edge_options.add_argument('--window-size=1920,1080')
+        edge_options.add_argument(f'user-agent={self.session.headers["User-Agent"]}')
         
         from selenium import webdriver
-        self.driver = webdriver.Chrome(options=chrome_options)
-        self.logger.info("Chrome WebDriver initialized")
+        service = self.get_webdriver_service('edge')
+        self.driver = webdriver.Edge(service=service, options=edge_options)
+        self.logger.info("Edge WebDriver initialized")
     
     def close_driver(self):
         """Close Selenium WebDriver"""
         if self.driver:
             self.driver.quit()
-            self.logger.info("Chrome WebDriver closed")
+            self.logger.info("Edge WebDriver closed")
     
     def scroll_page(self):
         """Scroll page to load more content"""

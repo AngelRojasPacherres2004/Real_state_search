@@ -4,3 +4,4 @@ mysql-connector-python==8.2.0
 python-dotenv==1.0.0
 lxml==4.9.3
 selenium==4.15.2
+webdriver-manager==4.0.1

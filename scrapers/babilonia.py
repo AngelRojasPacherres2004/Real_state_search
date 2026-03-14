@@ -23,92 +23,34 @@ class BabiloniaScraper(BaseScraper):
     
 
     def extract_contact_info(self, property_url: str) -> dict:
-        """
-        Extract contact information from property detail page
-        
-        Args:
-            property_url: URL of the property detail page
-            
-        Returns:
-            Dictionary with contact information
-        """
-        contact_info = {
-            'ownerName': None,
-            'ownerPhone': None,
-            'ownerEmail': None,
-            'ownerWhatsapp': None
-        }
-        
-        try:
-            self.logger.info(f"Extracting contact info from: {property_url}")
-            self.driver.get(property_url)
-            time.sleep(2)  # Wait for page to load
-            
-            page_source = self.driver.page_source
-            
-            # Extract phone numbers (Peruvian format)
-            phone_patterns = [
-                r'(\+51\s?)?\(?9\d{2}\)?[\s-]?\d{3}[\s-]?\d{3}',  # Mobile: +51 9XX XXX XXX
-                r'(\+51\s?)?\(?\d{1}\)?[\s-]?\d{3}[\s-]?\d{4}',  # Landline: +51 1 XXX XXXX
-                r'\d{9}',  # Simple 9-digit format
-            ]
-            
-            for pattern in phone_patterns:
-                match = re.search(pattern, page_source)
-                if match:
-                    phone = match.group(0).strip()
-                    # Clean phone number
-                    phone = re.sub(r'[^0-9+]', '', phone)
-                    if len(phone) >= 9:
-                        contact_info['ownerPhone'] = phone
-                        contact_info['ownerWhatsapp'] = phone  # Assume WhatsApp available
-                        break
-            
-            # Extract email
-            email_match = re.search(r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}', page_source)
-            if email_match:
-                contact_info['ownerEmail'] = email_match.group(0)
-            
-            # Extract owner name (look for common patterns)
-            name_patterns = [
-                r'(?:propietario|dueño|contacto):\s*([A-Z][a-záéíóúñ]+(?:\s+[A-Z][a-záéíóúñ]+)*)',
-                r'(?:vendedor|agente):\s*([A-Z][a-záéíóúñ]+(?:\s+[A-Z][a-záéíóúñ]+)*)',
-            ]
-            
-            for pattern in name_patterns:
-                match = re.search(pattern, page_source, re.IGNORECASE)
-                if match:
-                    contact_info['ownerName'] = match.group(1).strip()
-                    break
-            
-            self.logger.info(f"Extracted contact: phone={contact_info['ownerPhone']}, email={contact_info['ownerEmail']}")
-            
-        except Exception as e:
-            self.logger.error(f"Error extracting contact info: {e}")
-        
+        """Extract contact information from property detail page."""
+        self.logger.info(f"Extracting contact info from: {property_url}")
+        contact_info = super().extract_contact_info(property_url)
+        self.logger.info(f"Extracted contact: phone={contact_info.get('ownerPhone')}, email={contact_info.get('ownerEmail')}")
         return contact_info
 
 
     def init_driver(self):
         """Initialize Selenium WebDriver"""
-        from selenium.webdriver.chrome.options import Options
-        chrome_options = Options()
-        chrome_options.add_argument('--headless')
-        chrome_options.add_argument('--no-sandbox')
-        chrome_options.add_argument('--disable-dev-shm-usage')
-        chrome_options.add_argument('--disable-gpu')
-        chrome_options.add_argument('--window-size=1920,1080')
-        chrome_options.add_argument(f'user-agent={self.session.headers["User-Agent"]}')
+        from selenium.webdriver.edge.options import Options
+        edge_options = Options()
+        edge_options.add_argument('--headless')
+        edge_options.add_argument('--no-sandbox')
+        edge_options.add_argument('--disable-dev-shm-usage')
+        edge_options.add_argument('--disable-gpu')
+        edge_options.add_argument('--window-size=1920,1080')
+        edge_options.add_argument(f'user-agent={self.session.headers["User-Agent"]}')
         
         from selenium import webdriver
-        self.driver = webdriver.Chrome(options=chrome_options)
-        self.logger.info("Chrome WebDriver initialized")
+        service = self.get_webdriver_service('edge')
+        self.driver = webdriver.Edge(service=service, options=edge_options)
+        self.logger.info("Edge WebDriver initialized")
     
     def close_driver(self):
         """Close Selenium WebDriver"""
         if self.driver:
             self.driver.quit()
-            self.logger.info("Chrome WebDriver closed")
+            self.logger.info("Edge WebDriver closed")
     
     def scroll_page(self):
         """Scroll page to load more content"""
@@ -201,9 +143,8 @@ class BabiloniaScraper(BaseScraper):
             if not card_text or len(card_text) < 20:
                 return None
             
-            # Extract URL
-            property_url = card.get_attribute('href')
-            
+            # Extract URL (prefer listing link)
+            property_url = self._select_best_anchor(card, base_url=self.base_url)
             if not property_url or 'babilonia.pe' not in property_url:
                 return None
             
@@ -301,14 +242,7 @@ class BabiloniaScraper(BaseScraper):
                 pass
             
             # Extract image
-            image_url = None
-            try:
-                img_element = card.find_element(By.CSS_SELECTOR, "img")
-                image_url = img_element.get_attribute('src')
-                if image_url and not image_url.startswith('http'):
-                    image_url = self.base_url + image_url
-            except:
-                pass
+            image_url = self._select_best_image(card, base_url=self.base_url)
             
             # Build property data
             property_data = {

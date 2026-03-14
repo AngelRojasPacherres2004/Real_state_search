@@ -27,8 +27,8 @@ function Router() {
       <Route path="/scrapers" component={ScrapersAdmin} />
       <Route path="/importar" component={ImportData} />
       <Route path="/team" component={Team} />      <Route path={"/404"} component={NotFound} />
-      {/* Final fallback route */}
-      <Route component={NotFound} />
+      {/* Final fallback route - unknown paths go home */}
+      <Route component={Home} />
     </Switch>
   );
 }

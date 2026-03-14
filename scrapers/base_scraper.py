@@ -1,11 +1,14 @@
 """
 Base scraper class with common functionality
 """
+import os
+import re
 import time
 import logging
 import mysql.connector
 from typing import List, Dict, Optional
 from datetime import datetime
+from urllib.parse import urljoin, urlparse
 import requests
 from bs4 import BeautifulSoup
 from config import DB_CONFIG, SCRAPER_CONFIG
@@ -57,6 +60,349 @@ class BaseScraper:
             self.db_connection.close()
             self.logger.info("Database connection closed")
             
+    def _resolve_driver_path(self, env_var: str, config_key: str) -> Optional[str]:
+        """Resolve a local WebDriver binary path from env var or config."""
+        candidate = os.getenv(env_var) or SCRAPER_CONFIG.get(config_key, '')
+        if not candidate:
+            return None
+
+        candidate = os.path.expanduser(candidate)
+        if not os.path.isabs(candidate):
+            # Treat as relative to project root
+            candidate = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', candidate))
+
+        if os.path.isfile(candidate):
+            return candidate
+
+        self.logger.warning(f"Specified driver path for {env_var} does not exist: {candidate}")
+        return None
+
+    def _find_executable_in_path(self, name: str) -> Optional[str]:
+        """Return full path to an executable found in the PATH, if any."""
+        import shutil
+        path = shutil.which(name)
+        return path
+
+    def get_webdriver_service(self, browser: str = 'edge'):
+        """Return a Selenium Service using a local driver binary if configured.
+
+        Falls back to webdriver-manager if no local driver is configured.
+        """
+        browser = browser.lower()
+        if browser == 'edge':
+            from selenium.webdriver.edge.service import Service as EdgeService
+            driver_path = self._resolve_driver_path('EDGE_DRIVER_PATH', 'edge_driver_path')
+            if not driver_path:
+                # Look for a driver next to this repo as a convenience (e.g., ./scrapers/msedgedriver.exe)
+                possible = os.path.join(os.path.dirname(__file__), 'msedgedriver.exe')
+                if os.path.isfile(possible):
+                    driver_path = possible
+                else:
+                    possible = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'msedgedriver.exe'))
+                    if os.path.isfile(possible):
+                        driver_path = possible
+
+            if not driver_path:
+                # Fall back to system PATH for msedgedriver
+                driver_path = self._find_executable_in_path('msedgedriver') or self._find_executable_in_path('msedgedriver.exe')
+
+            if driver_path:
+                self.logger.info(f"Using local Edge WebDriver binary: {driver_path}")
+                return EdgeService(driver_path)
+
+            self.logger.warning(
+                "No local Edge WebDriver binary found. "
+                "Set EDGE_DRIVER_PATH to a valid msedgedriver.exe or place msedgedriver.exe next to the scrapers folder."
+            )
+            try:
+                from webdriver_manager.microsoft import EdgeChromiumDriverManager
+                return EdgeService(EdgeChromiumDriverManager().install())
+            except Exception as e:
+                self.logger.error(f"Unable to initialize Edge WebDriver: {e}")
+                raise
+        elif browser == 'chrome':
+            from selenium.webdriver.chrome.service import Service as ChromeService
+            driver_path = self._resolve_driver_path('CHROME_DRIVER_PATH', 'chrome_driver_path')
+            if not driver_path:
+                # Look for a driver next to this repo (e.g., ./scrapers/chromedriver.exe)
+                possible = os.path.join(os.path.dirname(__file__), 'chromedriver.exe')
+                if os.path.isfile(possible):
+                    driver_path = possible
+                else:
+                    possible = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'chromedriver.exe'))
+                    if os.path.isfile(possible):
+                        driver_path = possible
+
+            if not driver_path:
+                driver_path = self._find_executable_in_path('chromedriver') or self._find_executable_in_path('chromedriver.exe')
+
+            if driver_path:
+                self.logger.info(f"Using local Chrome WebDriver binary: {driver_path}")
+                return ChromeService(driver_path)
+
+            self.logger.warning(
+                "No local Chrome WebDriver binary found. "
+                "Set CHROME_DRIVER_PATH to a valid chromedriver.exe or place chromedriver.exe next to the scrapers folder."
+            )
+            try:
+                from webdriver_manager.chrome import ChromeDriverManager
+                return ChromeService(ChromeDriverManager().install())
+            except Exception as e:
+                self.logger.error(f"Unable to initialize Chrome WebDriver: {e}")
+                raise
+        else:
+            raise ValueError(f"Unsupported browser for WebDriver service: {browser}")
+
+    def _make_absolute_url(self, url: str, base_url: Optional[str] = None) -> Optional[str]:
+        """Normalize a URL to be absolute.
+
+        - Adds https: prefix for protocol-relative URLs (e.g. //example.com/image.jpg)
+        - Joins relative URLs using the provided base_url
+        - Returns None for empty or invalid input
+        """
+        if not url:
+            return None
+
+        url = url.strip()
+        if not url:
+            return None
+
+        # Protocol-relative URLs
+        if url.startswith('//'):
+            return f"https:{url}"
+
+        # Already absolute
+        if url.startswith('http://') or url.startswith('https://'):
+            return url
+
+        # Try to join relative URLs if we have a base
+        if base_url:
+            try:
+                return urljoin(base_url, url)
+            except Exception:
+                pass
+
+        return url
+
+    def _select_best_anchor(self, element, preferred_substrings=None, base_url: Optional[str] = None):
+        """Pick the best anchor (<a>) from a card element.
+
+        Args:
+            element: Selenium WebElement representing the card.
+            preferred_substrings: list of substrings to prioritize (e.g. ['/inmueble/', '/propiedad/']).
+            base_url: Optional base URL used to normalize relative links.
+
+        Returns:
+            The chosen absolute href string or None.
+        """
+        try:
+            from selenium.webdriver.common.by import By
+        except ImportError:
+            return None
+
+        if preferred_substrings is None:
+            preferred_substrings = ['/inmueble/', '/propiedad/', '/detalle/', '/venta-', '/alquiler-']
+
+        try:
+            anchors = element.find_elements(By.TAG_NAME, 'a')
+        except Exception:
+            return None
+
+        best = None
+        for a in anchors:
+            try:
+                href = (a.get_attribute('href') or '').strip()
+            except Exception:
+                continue
+            if not href or href.startswith('#') or href.startswith('javascript:') or href.lower().startswith('mailto:'):
+                continue
+
+            normalized = self._make_absolute_url(href, base_url)
+            if not normalized:
+                continue
+
+            # Prefer anchors containing one of the preferred substrings
+            if any(sub in normalized for sub in preferred_substrings):
+                return normalized
+            if not best:
+                best = normalized
+        return best
+
+    def _select_best_image(self, element, base_url: Optional[str] = None):
+        """Pick the best image URL from a card element.
+
+        Uses src or data-src and filters out logos/placeholders.
+        """
+        try:
+            from selenium.webdriver.common.by import By
+        except ImportError:
+            return None
+
+        try:
+            imgs = element.find_elements(By.TAG_NAME, 'img')
+        except Exception:
+            return None
+
+        candidates = []
+        for img in imgs:
+            try:
+                # Prefer common lazy-loaded attributes
+                src = (
+                    img.get_attribute('data-original')
+                    or img.get_attribute('data-lazy')
+                    or img.get_attribute('data-src')
+                    or img.get_attribute('src')
+                    or ''
+                ).strip()
+            except Exception:
+                continue
+            if not src:
+                continue
+
+            low = src.lower()
+
+            # Skip placeholders, icons and tracking images
+            if any(ignore in low for ignore in ['.svg', 'logo', 'brand', 'placeholder', 'blank', 'spinner', 'loading', 'pixel', 'track']):
+                continue
+
+            # Skip base64 tiny placeholders
+            if low.startswith('data:image'):
+                continue
+
+            # Accept common image extensions
+            if any(ext in low for ext in ['.jpg', '.jpeg', '.png', '.webp', '.gif']):
+                candidates.append(src)
+
+        # Prefer the longest (likely higher-res) URL if multiple found
+        if candidates:
+            candidates.sort(key=len, reverse=True)
+            return self._make_absolute_url(candidates[0], base_url)
+
+        # Fallback: look for background-image inline styles
+        for img in imgs:
+            try:
+                style = img.get_attribute('style') or ''
+                if 'background-image' in style:
+                    match = re.search(r"url\(['\"]?(.*?)['\"]?\)", style)
+                    if match:
+                        return self._make_absolute_url(match.group(1), base_url)
+            except Exception:
+                continue
+
+        return None
+
+    def extract_contact_info_from_html(self, html: str, page_url: Optional[str] = None) -> Dict[str, Optional[str]]:
+        """Extract contact info (phone/email/whatsapp) from HTML content."""
+        contact_info = {
+            'ownerName': None,
+            'ownerPhone': None,
+            'ownerEmail': None,
+            'ownerWhatsapp': None
+        }
+
+        if not html:
+            return contact_info
+
+        # Prefer parsing clickable links first (tel:, mailto:, whatsapp)
+        try:
+            soup = BeautifulSoup(html, 'html.parser')
+
+            # Phone via tel: links
+            tel_link = soup.select_one('a[href^="tel:"]')
+            if tel_link:
+                href = tel_link.get('href', '')
+                phone = re.sub(r'[^0-9+]', '', href.replace('tel:', ''))
+                if phone:
+                    contact_info['ownerPhone'] = phone
+                    contact_info['ownerWhatsapp'] = phone
+
+            # Email via mailto:
+            mail_link = soup.select_one('a[href^="mailto:"]')
+            if mail_link:
+                href = mail_link.get('href', '')
+                email = href.replace('mailto:', '').split('?')[0]
+                if email:
+                    contact_info['ownerEmail'] = email
+
+            # WhatsApp links
+            wa_link = soup.select_one('a[href*="wa.me/"]') or soup.select_one('a[href*="api.whatsapp.com/send"]')
+            if wa_link and not contact_info['ownerWhatsapp']:
+                href = wa_link.get('href', '')
+                match = re.search(r'(?:wa\.me/|phone=)(\+?[0-9]+)', href)
+                if match:
+                    contact_info['ownerWhatsapp'] = re.sub(r'[^0-9+]', '', match.group(1))
+                    if not contact_info['ownerPhone']:
+                        contact_info['ownerPhone'] = contact_info['ownerWhatsapp']
+        except Exception:
+            pass
+
+        # Also look for raw phone/email in the HTML as a fallback
+        if not contact_info['ownerPhone']:
+            phone_patterns = [
+                r'(\+51\s?)?\(?9\d{2}\)?[\s-]?\d{3}[\s-]?\d{3}',  # Mobile
+                r'(\+51\s?)?\(?\d{1}\)?[\s-]?\d{3}[\s-]?\d{4}',  # Landline
+                r'\d{9}',  # Simple 9-digit
+            ]
+            for pattern in phone_patterns:
+                match = re.search(pattern, html)
+                if match:
+                    phone = re.sub(r'[^0-9+]', '', match.group(0))
+                    if len(phone) >= 9:
+                        contact_info['ownerPhone'] = phone
+                        if not contact_info['ownerWhatsapp']:
+                            contact_info['ownerWhatsapp'] = phone
+                        break
+
+        if not contact_info['ownerEmail']:
+            email_match = re.search(r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}', html)
+            if email_match:
+                contact_info['ownerEmail'] = email_match.group(0)
+
+        # Owner name - try to infer from common labels
+        if not contact_info['ownerName']:
+            name_patterns = [
+                r'(?:propietario|dueño|contacto)[:\s]+([A-Z][a-záéíóúñ]+(?:\s+[A-Z][a-záéíóúñ]+)*)',
+                r'(?:vendedor|agente)[:\s]+([A-Z][a-záéíóúñ]+(?:\s+[A-Z][a-záéíóúñ]+)*)',
+            ]
+            for pattern in name_patterns:
+                match = re.search(pattern, html, re.IGNORECASE)
+                if match:
+                    contact_info['ownerName'] = match.group(1).strip()
+                    break
+
+        return contact_info
+
+    def extract_contact_info(self, property_url: str) -> Dict[str, Optional[str]]:
+        """Load a property URL and extract contact information."""
+        contact_info = {
+            'ownerName': None,
+            'ownerPhone': None,
+            'ownerEmail': None,
+            'ownerWhatsapp': None
+        }
+
+        if not property_url:
+            return contact_info
+
+        try:
+            html = None
+            # Use Selenium driver if available (most scrapers use it)
+            if hasattr(self, 'driver') and getattr(self, 'driver', None):
+                try:
+                    self.driver.get(property_url)
+                    time.sleep(2)
+                    html = self.driver.page_source
+                except Exception:
+                    html = None
+            else:
+                # Fallback to simple HTTP fetch
+                soup = self.fetch_page(property_url)
+                html = soup.prettify() if soup else None
+
+            return self.extract_contact_info_from_html(html, page_url=property_url)
+        except Exception:
+            return contact_info
+
     def fetch_page(self, url: str, max_retries: int = None) -> Optional[BeautifulSoup]:
         """
         Fetch and parse a web page

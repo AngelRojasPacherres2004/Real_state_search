@@ -65,7 +65,7 @@ async function startServer() {
           ...cookieOptions,
           maxAge: ONE_YEAR_MS,
         });
-        res.redirect(302, "/");
+        res.redirect(302, "/dashboard");
       } catch (error) {
         console.error("[DevLogin] Error:", error);
         res.status(500).json({ error: String(error) });

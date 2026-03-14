@@ -191,6 +191,75 @@ export async function upsertProperty(property: InsertProperty) {
 // Tasa de cambio aproximada USD a PEN
 const USD_TO_PEN_RATE = 3.75;
 
+function parseNumberFromPrice(priceRaw: string | null | undefined) {
+  if (!priceRaw) return null;
+  const normalized = priceRaw
+    .replace(/S\//g, '')
+    .replace(/\$/g, '')
+    .replace(/USD/g, '')
+    .replace(/\./g, '')
+    .replace(/,/g, '.')
+    .match(/\d+(?:[\.,]\d+)?/g)?.[0];
+  if (!normalized) return null;
+  const value = Number(normalized.replace(',', '.'));
+  return Number.isFinite(value) ? value : null;
+}
+
+function parseOperationTypeFromPrice(priceRaw: string | null | undefined) {
+  if (!priceRaw) return 'alquiler';
+  if (/\b(venta|comprar|compras?)\b/i.test(priceRaw)) return 'venta';
+  return 'alquiler';
+}
+
+function mapDepartamentoRow(row: any) {
+  const precio = row.precio || '';
+  const parsedPrice = parseNumberFromPrice(precio);
+  const currency = precio.includes('USD') ? 'USD' : 'PEN';
+
+  const caracteristicas = row.caracteristicas || '';
+  const areaMatch = caracteristicas.match(/(\d+(?:[\.,]\d+)?)\s*m/);
+  const bedroomsMatch = caracteristicas.match(/(\d+)\s*dorm/i);
+  const bathroomsMatch = caracteristicas.match(/(\d+)\s*baño/i);
+
+  return {
+    id: row.id,
+    externalId: row.id_listing || `${row.portal || 'departamentos'}-${row.id}`,
+    portal: row.portal || 'departamentos',
+    title: row.caracteristicas || row.ubicacion || 'Departamento',
+    description: row.caracteristicas || '',
+    operationType: parseOperationTypeFromPrice(precio),
+    propertyType: 'departamento',
+    price: parsedPrice ?? 0,
+    currency,
+    area: areaMatch ? Number(areaMatch[1].replace(',', '.')) : null,
+    bedrooms: bedroomsMatch ? Number(bedroomsMatch[1]) : null,
+    bathrooms: bathroomsMatch ? Number(bathroomsMatch[1]) : null,
+    district: row.ubicacion || null,
+    province: row.ubicacion || null,
+    department: null,
+    address: row.ubicacion || null,
+    latitude: null,
+    longitude: null,
+    imageUrl: row.foto || null,
+    sourceUrl: row.link || null,
+    amenities: null,
+    fullDescription: row.caracteristicas || null,
+    buildingAmenities: null,
+    nearbyPlaces: null,
+    ownerName: null,
+    ownerPhone: null,
+    ownerEmail: null,
+    ownerWhatsapp: null,
+    agentName: null,
+    agentCompany: null,
+    isActive: true,
+    publishedAt: row.ultima_vez_visto || null,
+    scrapedAt: row.created_at || new Date(),
+    createdAt: row.created_at || new Date(),
+    updatedAt: row.created_at || new Date(),
+  };
+}
+
 export async function searchProperties(filters: {
   operationType?: 'alquiler' | 'venta';
   propertyType?: string;
@@ -209,8 +278,63 @@ export async function searchProperties(filters: {
   offset?: number;
 }) {
   const db = await getDb();
-  if (!db) throw new Error("Database not available");
+  if (!db) throw new Error('Database not available');
 
+  // 1) Search in departamentos first (for your custom table)
+  try {
+    const conditions = ['1=1'];
+
+    if (filters.operationType) {
+      if (filters.operationType === 'venta') {
+        conditions.push("(precio LIKE '%venta%' OR caracteristicas LIKE '%venta%')");
+      } else {
+        conditions.push("(precio NOT LIKE '%venta%' AND caracteristicas NOT LIKE '%venta%')");
+      }
+    }
+
+    if (filters.districts && filters.districts.length > 0) {
+      const districtConds = filters.districts.map(d => {
+        const escaped = d.replace(/'/g, "''").toLowerCase();
+        return `LOWER(ubicacion) LIKE '%${escaped}%'`;
+      });
+      conditions.push(`(${districtConds.join(' OR ')})`);
+    }
+
+    if (filters.minPrice !== undefined) {
+      const minP = Number(filters.minPrice);
+      if (!Number.isNaN(minP)) {
+        conditions.push(`CAST(REPLACE(REPLACE(REPLACE(REPLACE(precio, 'S/', ''), '$', ''), 'USD', ''), ',', '.') AS DECIMAL(15,2)) >= ${minP}`);
+      }
+    }
+    if (filters.maxPrice !== undefined) {
+      const maxP = Number(filters.maxPrice);
+      if (!Number.isNaN(maxP)) {
+        conditions.push(`CAST(REPLACE(REPLACE(REPLACE(REPLACE(precio, 'S/', ''), '$', ''), 'USD', ''), ',', '.') AS DECIMAL(15,2)) <= ${maxP}`);
+      }
+    }
+
+    if (filters.minArea !== undefined) {
+      const minA = Number(filters.minArea);
+      if (!Number.isNaN(minA)) {
+        conditions.push(`caracteristicas LIKE '%${minA} m%'`);
+      }
+    }
+
+    const limit = Number.isFinite(Number(filters.limit)) && Number(filters.limit) > 0 ? Number(filters.limit) : 50;
+    const offset = Number.isFinite(Number(filters.offset)) && Number(filters.offset) >= 0 ? Number(filters.offset) : 0;
+    const sqlString = `SELECT * FROM departamentos WHERE ${conditions.join(' AND ')} ORDER BY created_at DESC LIMIT ${limit} OFFSET ${offset}`;
+    console.log('[DB] departamentos SQL', sqlString);
+    const result: any = await (db as any).execute(sqlString);
+    const rows = result[0] ?? result;
+    console.log('[DB] departamentos rows', Array.isArray(rows) ? rows.length : 0);
+    if (Array.isArray(rows) && rows.length > 0) {
+      return rows.map(mapDepartamentoRow);
+    }
+  } catch (error) {
+    console.warn('[DB] departamentos fallback search failed', error);
+  }
+
+  // 2) Fallback to default properties table if nothing found or no departamentos rows
   const conditions = [eq(properties.isActive, true)];
 
   if (filters.operationType) {
@@ -218,27 +342,20 @@ export async function searchProperties(filters: {
   }
 
   if (filters.propertyType) {
-    // Buscar por tipo de propiedad de forma flexible (case insensitive)
     const propType = filters.propertyType.toLowerCase();
     conditions.push(sql`LOWER(${properties.propertyType}) LIKE ${`%${propType}%`}`);
   }
 
   if (filters.districts && filters.districts.length > 0) {
-    // Búsqueda flexible de distritos (case insensitive y parcial)
     const districtConditions = filters.districts.map(d => 
       sql`LOWER(${properties.district}) LIKE ${`%${d.toLowerCase()}%`}`
     );
     conditions.push(sql`(${sql.join(districtConditions, sql` OR `)})`);
   }
 
-  // Filtro de precio con conversión de moneda
   if (filters.minPrice !== undefined || filters.maxPrice !== undefined) {
     const searchCurrency = filters.currency || 'USD';
-    
     if (searchCurrency === 'PEN') {
-      // Usuario busca en PEN: convertir USD a PEN para comparar
-      // Propiedades en PEN: comparar directamente
-      // Propiedades en USD: multiplicar por tasa de cambio
       if (filters.minPrice !== undefined) {
         conditions.push(sql`(
           (${properties.currency} = 'PEN' AND CAST(${properties.price} AS DECIMAL(15,2)) >= ${filters.minPrice})
@@ -254,9 +371,6 @@ export async function searchProperties(filters: {
         )`);
       }
     } else {
-      // Usuario busca en USD: convertir PEN a USD para comparar
-      // Propiedades en USD: comparar directamente
-      // Propiedades en PEN: dividir por tasa de cambio
       if (filters.minPrice !== undefined) {
         conditions.push(sql`(
           (${properties.currency} = 'USD' AND CAST(${properties.price} AS DECIMAL(15,2)) >= ${filters.minPrice})
@@ -277,7 +391,6 @@ export async function searchProperties(filters: {
   if (filters.minArea !== undefined) {
     conditions.push(sql`CAST(${properties.area} AS DECIMAL(10,2)) >= ${filters.minArea}`);
   }
-
   if (filters.maxArea !== undefined) {
     conditions.push(sql`CAST(${properties.area} AS DECIMAL(10,2)) <= ${filters.maxArea}`);
   }
@@ -285,7 +398,6 @@ export async function searchProperties(filters: {
   if (filters.minBedrooms !== undefined) {
     conditions.push(gte(properties.bedrooms, filters.minBedrooms));
   }
-
   if (filters.maxBedrooms !== undefined) {
     conditions.push(lte(properties.bedrooms, filters.maxBedrooms));
   }
@@ -293,7 +405,6 @@ export async function searchProperties(filters: {
   if (filters.minBathrooms !== undefined) {
     conditions.push(gte(properties.bathrooms, filters.minBathrooms));
   }
-
   if (filters.maxBathrooms !== undefined) {
     conditions.push(lte(properties.bathrooms, filters.maxBathrooms));
   }
