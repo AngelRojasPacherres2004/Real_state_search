@@ -5,10 +5,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import * as db from "./db";
-import { PropertyScraper, type SearchParams } from "./scrapers";
 import { savedSearchRouter, searchHistoryRouter } from "./savedSearchRouter";
-
-const scraper = new PropertyScraper();
 
 export const appRouter = router({
   system: systemRouter,
@@ -57,103 +54,11 @@ export const appRouter = router({
           };
         }
 
-        // Otherwise, attempt scraping across configured portals
-        // (scrapers currently may return empty arrays if not implemented)
-        const mockProperties = await scraper.scrapeAll(input as SearchParams);
-        
-        // Filter mock properties based on input
-        let filtered = mockProperties;
-        
-        if (input.operationType) {
-          filtered = filtered.filter(p => p.operationType === input.operationType);
-        }
-        
-        if (input.districts && input.districts.length > 0) {
-          filtered = filtered.filter(p => input.districts!.includes(p.district));
-        }
-        
-        if (input.minPrice !== undefined) {
-          filtered = filtered.filter(p => p.price >= input.minPrice!);
-        }
-        
-        if (input.maxPrice !== undefined) {
-          filtered = filtered.filter(p => p.price <= input.maxPrice!);
-        }
-        
-        if (input.minBedrooms !== undefined) {
-          filtered = filtered.filter(p => (p.bedrooms || 0) >= input.minBedrooms!);
-        }
-        
-        if (input.maxBedrooms !== undefined) {
-          filtered = filtered.filter(p => (p.bedrooms || 0) <= input.maxBedrooms!);
-        }
-        
-        if (input.minArea !== undefined) {
-          filtered = filtered.filter(p => (p.area || 0) >= input.minArea!);
-        }
-        
-        if (input.maxArea !== undefined) {
-          filtered = filtered.filter(p => (p.area || 0) <= input.maxArea!);
-        }
-        
-        if (input.minBathrooms !== undefined) {
-          filtered = filtered.filter(p => (p.bathrooms || 0) >= input.minBathrooms!);
-        }
-        
-        if (input.maxBathrooms !== undefined) {
-          filtered = filtered.filter(p => (p.bathrooms || 0) <= input.maxBathrooms!);
-        }
-        
-        if (input.propertyType) {
-          filtered = filtered.filter(p => p.propertyType.toLowerCase() === input.propertyType!.toLowerCase());
-        }
-        
-        if (input.amenities && input.amenities.length > 0) {
-          filtered = filtered.filter(p => {
-            if (!p.amenities || p.amenities.length === 0) return false;
-            // Check if property has ALL selected amenities
-            return input.amenities!.every(amenity => 
-              p.amenities!.some(propAmenity => 
-                propAmenity.toLowerCase().includes(amenity.toLowerCase())
-              )
-            );
-          });
-        }
-
-        // Store in database for future queries
-        for (const prop of filtered.slice(0, 20)) {
-          try {
-            await db.upsertProperty({
-              externalId: prop.externalId,
-              portal: prop.portal,
-              title: prop.title,
-              description: prop.description,
-              operationType: prop.operationType,
-              propertyType: prop.propertyType,
-              price: prop.price.toString(),
-              currency: prop.currency,
-              area: prop.area?.toString(),
-              bedrooms: prop.bedrooms,
-              bathrooms: prop.bathrooms,
-              district: prop.district,
-              province: prop.province,
-              department: prop.department,
-              address: prop.address,
-              latitude: prop.latitude?.toString(),
-              longitude: prop.longitude?.toString(),
-              imageUrl: prop.imageUrl,
-              sourceUrl: prop.sourceUrl,
-              amenities: prop.amenities ? JSON.stringify(prop.amenities) : null,
-            });
-          } catch (error) {
-            console.error('Error upserting property:', error);
-          }
-        }
-        
+        // If there were no DB results, return empty result set (no scraping)
         return {
-          properties: filtered.slice(input.offset || 0, (input.offset || 0) + (input.limit || 50)),
-          source: 'scraper' as const,
-          total: filtered.length,
+          properties: [],
+          source: 'database' as const,
+          total: 0,
         };
       }),
 
@@ -170,7 +75,12 @@ export const appRouter = router({
       }),
 
     stats: protectedProcedure.query(async () => {
-      return await db.getPropertyStatsByDistrict();
+      try {
+        return await db.getPropertyStatsByDistrict();
+      } catch (error) {
+        console.warn('[properties.stats] DB unavailable, returning empty stats', error);
+        return [];
+      }
     }),
   }),
 
@@ -436,10 +346,16 @@ export const appRouter = router({
       )
       .mutation(async ({ ctx, input }) => {
         const { exportPropertiesToExcel } = await import("./excelExport");
-        const properties = await db.searchProperties({
-          ...input,
-          limit: 10000, // Export all matching properties
-        });
+        let properties: any[] = [];
+        try {
+          properties = await db.searchProperties({
+            ...input,
+            limit: 10000, // Export all matching properties
+          });
+        } catch (error) {
+          console.warn("[export.properties] searchProperties failed, returning empty export:", error);
+          properties = [];
+        }
 
         const buffer = await exportPropertiesToExcel(properties);
         const base64 = buffer.toString('base64');
@@ -452,8 +368,14 @@ export const appRouter = router({
       }),
     leads: protectedProcedure.mutation(async ({ ctx }) => {
       const { exportLeadsToExcel } = await import("./excelExport");
-      const leadsData = await db.getUserLeads(ctx.user.id);
-      const leads = leadsData.map((item: any) => item.lead);
+      let leads: any[] = [];
+      try {
+        const leadsData = await db.getUserLeads(ctx.user.id);
+        leads = leadsData.map((item: any) => item.lead);
+      } catch (error) {
+        console.warn("[export.leads] getUserLeads failed, exporting empty leads:", error);
+        leads = [];
+      }
 
       const buffer = await exportLeadsToExcel(leads);
       const base64 = buffer.toString('base64');
