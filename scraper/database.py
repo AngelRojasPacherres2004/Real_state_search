@@ -10,33 +10,39 @@ def guardar_propiedades(propiedades):
     cursor = conn.cursor()
 
     query = """
-        INSERT INTO propiedades 
-            (id, precio, mantenimiento, caracteristicas, ubicacion, descripcion, link, foto, pagina_scraping, fecha_scraping)
+        INSERT INTO departamentos 
+            (portal, id_listing, precio, mantenimiento, caracteristicas, 
+             ubicacion, link, foto, operacion, inmueble, ultima_vez_visto)
         VALUES 
-            (%s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
+            (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         ON DUPLICATE KEY UPDATE
-            precio = VALUES(precio),
-            mantenimiento = VALUES(mantenimiento),
-            caracteristicas = VALUES(caracteristicas),
-            ubicacion = VALUES(ubicacion),
-            descripcion = VALUES(descripcion),
-            link = VALUES(link),
-            foto = VALUES(foto),
-            pagina_scraping = VALUES(pagina_scraping),
-            fecha_scraping = NOW()
+            precio           = VALUES(precio),
+            mantenimiento    = VALUES(mantenimiento),
+            caracteristicas  = VALUES(caracteristicas),
+            ubicacion        = VALUES(ubicacion),
+            link             = VALUES(link),
+            foto             = VALUES(foto),
+            operacion        = VALUES(operacion),
+            inmueble         = VALUES(inmueble),
+            portal           = VALUES(portal),
+            ultima_vez_visto = CURRENT_TIMESTAMP
     """
+
+    ahora = datetime.now()
 
     datos = [
         (
+            p.get('portal',    'desconocido'),   # ← dinámico
             p['id'],
             p['precio'],
             p['mantenimiento'],
             p['caracteristicas'],
             p['ubicacion'],
-            p['descripcion'],
             p['link'],
             p['foto'],
-            p['pagina_scraping'],
+            p.get('operacion', 'desconocido'),   # ← dinámico
+            p.get('inmueble',  'desconocido'),   # ← dinámico
+            ahora
         )
         for p in propiedades
     ]
