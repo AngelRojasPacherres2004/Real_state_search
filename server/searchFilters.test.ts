@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { generateMockProperties } from "./scrapers";
+import { generateMockProperties } from "./testUtils";
 
 describe("Search Filters", () => {
   it("should generate properties with correct area ranges for casas", () => {

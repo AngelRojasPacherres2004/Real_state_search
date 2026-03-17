@@ -24,25 +24,16 @@ function isSecureRequest(req: Request) {
 export function getSessionCookieOptions(
   req: Request
 ): Pick<CookieOptions, "domain" | "httpOnly" | "path" | "sameSite" | "secure"> {
-  // const hostname = req.hostname;
-  // const shouldSetDomain =
-  //   hostname &&
-  //   !LOCAL_HOSTS.has(hostname) &&
-  //   !isIpAddress(hostname) &&
-  //   hostname !== "127.0.0.1" &&
-  //   hostname !== "::1";
+  const secure = isSecureRequest(req);
 
-  // const domain =
-  //   shouldSetDomain && !hostname.startsWith(".")
-  //     ? `.${hostname}`
-  //     : shouldSetDomain
-  //       ? hostname
-  //       : undefined;
-
+  // When SameSite is 'none', browsers require the Secure flag. On local
+  // non-HTTPS development (secure === false) we fall back to 'lax' so the
+  // cookie is accepted by browsers while still providing reasonable CSRF
+  // protection for development flows.
   return {
     httpOnly: true,
     path: "/",
-    sameSite: "none",
-    secure: isSecureRequest(req),
+    sameSite: secure ? ("none" as const) : ("lax" as const),
+    secure,
   };
 }

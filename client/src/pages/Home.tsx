@@ -139,7 +139,7 @@ export default function Home() {
       minArea: minArea ? parseFloat(minArea) : undefined,
       maxArea: maxArea ? parseFloat(maxArea) : undefined,
       amenities: selectedAmenities.length > 0 ? selectedAmenities : undefined,
-      limit: 50,
+      limit: 50000,
     },
     {
       enabled: isAuthenticated,
@@ -723,6 +723,18 @@ export default function Home() {
                 </Badge>
               </div>
             </div>
+
+            {searchQuery.data.total === 0 && (
+              <div className="mb-4 p-4 border border-yellow-300 rounded-lg bg-yellow-50 text-yellow-900">
+                <p className="font-medium">No hay propiedades en la base de datos con estos filtros.</p>
+                <p className="text-sm">Puedes cambiar filtros o recargar datos de la base para mostrar propiedades.</p>
+                <div className="mt-2">
+                  <Button size="sm" onClick={() => searchQuery.refetch()}>
+                    Recargar propiedades
+                  </Button>
+                </div>
+              </div>
+            )}
 
             {viewMode === "map" && (
               <div className="mb-6">

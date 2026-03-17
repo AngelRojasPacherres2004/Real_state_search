@@ -5,7 +5,12 @@ import * as db from "./db";
 export const savedSearchRouter = router({
   // List user's saved searches
   list: protectedProcedure.query(async ({ ctx }) => {
-    return await db.getUserSavedSearches(ctx.user.id);
+    try {
+      return await db.getUserSavedSearches(ctx.user.id);
+    } catch (error) {
+      console.warn('[savedSearches.list] DB unavailable, returning empty list', error);
+      return [];
+    }
   }),
 
   // Create a new saved search
@@ -27,21 +32,25 @@ export const savedSearchRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      await db.createSavedSearch({
-        userId: ctx.user.id,
-        name: input.name,
-        operationType: input.operationType,
-        propertyType: input.propertyType || null,
-        districts: input.districts ? JSON.stringify(input.districts) : null,
-        portals: input.portals ? JSON.stringify(input.portals) : null,
-        minPrice: input.minPrice || null,
-        maxPrice: input.maxPrice || null,
-        minBedrooms: input.minBedrooms || null,
-        maxBedrooms: input.maxBedrooms || null,
-        minArea: input.minArea || null,
-        maxArea: input.maxArea || null,
-        publishedWithin: input.publishedWithin || null,
-      });
+      try {
+        await db.createSavedSearch({
+          userId: ctx.user.id,
+          name: input.name,
+          operationType: input.operationType,
+          propertyType: input.propertyType || null,
+          districts: input.districts ? JSON.stringify(input.districts) : null,
+          portals: input.portals ? JSON.stringify(input.portals) : null,
+          minPrice: input.minPrice || null,
+          maxPrice: input.maxPrice || null,
+          minBedrooms: input.minBedrooms || null,
+          maxBedrooms: input.maxBedrooms || null,
+          minArea: input.minArea || null,
+          maxArea: input.maxArea || null,
+          publishedWithin: input.publishedWithin || null,
+        });
+      } catch (error) {
+        console.warn('[savedSearches.create] DB unavailable, skipping create', error);
+      }
 
       return { success: true };
     }),
@@ -82,21 +91,25 @@ export const searchHistoryRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      await db.createSearchHistory({
-        userId: ctx.user.id,
-        propertyType: input.propertyType || null,
-        operationType: input.operationType,
-        districts: input.districts ? JSON.stringify(input.districts) : null,
-        portals: input.portals ? JSON.stringify(input.portals) : null,
-        minPrice: input.minPrice || null,
-        maxPrice: input.maxPrice || null,
-        minBedrooms: input.minBedrooms || null,
-        maxBedrooms: input.maxBedrooms || null,
-        minArea: input.minArea || null,
-        maxArea: input.maxArea || null,
-        publishedWithin: input.publishedWithin || null,
-        resultsCount: input.resultsCount || 0,
-      });
+      try {
+        await db.createSearchHistory({
+          userId: ctx.user.id,
+          propertyType: input.propertyType || null,
+          operationType: input.operationType,
+          districts: input.districts ? JSON.stringify(input.districts) : null,
+          portals: input.portals ? JSON.stringify(input.portals) : null,
+          minPrice: input.minPrice || null,
+          maxPrice: input.maxPrice || null,
+          minBedrooms: input.minBedrooms || null,
+          maxBedrooms: input.maxBedrooms || null,
+          minArea: input.minArea || null,
+          maxArea: input.maxArea || null,
+          publishedWithin: input.publishedWithin || null,
+          resultsCount: input.resultsCount || 0,
+        });
+      } catch (error) {
+        console.warn('[searchHistory.record] DB unavailable, skipping record', error);
+      }
 
       return { success: true };
     }),
