@@ -263,11 +263,8 @@ export async function searchProperties(filters: {
     const conditions = ['1=1'];
 
     if (filters.operationType) {
-      if (filters.operationType === 'venta') {
-        conditions.push("(precio LIKE '%venta%' OR caracteristicas LIKE '%venta%')");
-      } else {
-        conditions.push("(precio NOT LIKE '%venta%' AND caracteristicas NOT LIKE '%venta%')");
-      }
+      const op = filters.operationType === 'venta' ? 'venta' : 'alquiler';
+      conditions.push(`operacion = '${op}'`);
     }
 
     if (filters.districts && filters.districts.length > 0) {

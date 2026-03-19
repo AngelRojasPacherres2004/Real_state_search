@@ -100,6 +100,7 @@ export default function Home() {
   const [sortBy, setSortBy] = useState<"price" | "area" | "none">("none");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [viewMode, setViewMode] = useState<"list" | "map">("list");
+  const [visibleCount, setVisibleCount] = useState(100);
   const mapRef = useRef<google.maps.Map | null>(null);
 
   const handleToggleCompare = (property: any) => {
@@ -145,6 +146,10 @@ export default function Home() {
       enabled: isAuthenticated,
     }
   );
+
+  useEffect(() => {
+    setVisibleCount(100);
+  }, [operationType, propertyType, selectedDistricts, selectedPortals, selectedAmenities, minPrice, maxPrice, minBedrooms, maxBedrooms, minArea, maxArea, currency]);
 
   const addFavoriteMutation = trpc.favorites.add.useMutation({
     onSuccess: () => {
@@ -816,7 +821,7 @@ export default function Home() {
                     return sortOrder === "asc" ? areaA - areaB : areaB - areaA;
                   });
                 }
-                return sortedProperties;
+                return sortedProperties.slice(0, visibleCount);
               })().map((property: any) => (
                 <Card key={property.id} className="overflow-hidden hover:shadow-lg transition-shadow">
                   <div className="relative h-48 bg-muted">
@@ -952,6 +957,19 @@ export default function Home() {
                 </Card>
               ))}
             </div>
+            {searchQuery.data.properties.length > visibleCount && (
+              <div className="mt-4 flex flex-col items-center gap-2">
+                <div className="text-sm text-muted-foreground">
+                  Mostrando {Math.min(visibleCount, searchQuery.data.properties.length)} de {searchQuery.data.properties.length} propiedades
+                </div>
+                <Button
+                  variant="outline"
+                  onClick={() => setVisibleCount(prev => prev + 100)}
+                >
+                  Ver más
+                </Button>
+              </div>
+            )}
           </div>
         )}
 
